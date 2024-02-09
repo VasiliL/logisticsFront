@@ -1,0 +1,189 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
+      },
+      "alias": {
+        "map": [
+          [
+            "@src",
+            "./src"
+          ],
+          [
+            "@assets",
+            "./assets"
+          ]
+        ],
+        "extensions": [
+          ".js",
+          ".jsx",
+          ".ts",
+          ".tsx"
+        ]
+      }
+    },
+    "react": {
+      "version": "detect"
+    }
+  },
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "react-hooks",
+    "import"
+  ],
+
+  "rules": {
+    "react/prop-types": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "quotes": [
+      2,
+      "single",
+      {
+        "avoidEscape": true
+      }
+    ],
+    "object-curly-spacing": [
+      "error",
+      "always"
+    ],
+    "curly": [
+      "error",
+      "multi-line"
+    ],
+    "newline-before-return": "error",
+    "comma-dangle": [
+      "error",
+      "only-multiline"
+    ],
+    "max-classes-per-file": [
+      "error",
+      1
+    ],
+    "max-len": [
+      "warn",
+      {
+        "code": 120,
+        "ignoreTemplateLiterals": true,
+        "ignoreStrings": true,
+        "ignoreComments": true,
+        "ignoreTrailingComments": true
+      }
+    ],
+    "prefer-const": [
+      "error",
+      {
+        "destructuring": "all"
+      }
+    ],
+    "@typescript-eslint/no-this-alias": [
+      "error",
+      {
+        "allowDestructuring": true,
+        "allowedNames": [
+          "self",
+          "context",
+          "that"
+        ]
+      }
+    ],
+    "prefer-template": [
+      "error"
+    ],
+    "no-trailing-spaces": [
+      "error",
+      {
+        "skipBlankLines": true,
+        "ignoreComments": true
+      }
+    ],
+    "no-multiple-empty-lines": [
+      "error",
+      {
+        "max": 2,
+        "maxEOF": 1
+      }
+    ],
+    "no-duplicate-imports": [
+      "error",
+      {
+        "includeExports": false
+      }
+    ],
+    "require-await": [
+      "error"
+    ],
+    "@typescript-eslint/no-non-null-assertion": [
+      "error"
+    ],
+    "@typescript-eslint/no-empty-interface": [
+      "off"
+    ],
+    "@typescript-eslint/interface-name-prefix": [
+      "off"
+    ],
+    "no-duplicate-case": [
+      "error"
+    ],
+    "no-redeclare": [
+      "error"
+    ],
+    "no-empty": [
+      "error",
+      {
+        "allowEmptyCatch": true
+      }
+    ],
+    "import/no-unresolved": [
+      "off"
+    ],
+    "import/named": [
+      "off"
+    ],
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          [
+            "internal",
+            "external",
+            "builtin",
+            "index"
+          ],
+          "parent",
+          "sibling"
+        ],
+        "newlines-between": "always-and-inside-groups"
+      }
+    ],
+    "semi": [
+      "error",
+      "always",
+      {
+        "omitLastInOneLineBlock": true
+      }
+    ]
+  }
+}
