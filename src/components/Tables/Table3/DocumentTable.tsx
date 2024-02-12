@@ -260,10 +260,10 @@ export const DocumentTable: FC = observer(() => {
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
       <DocumentTableFilter
-        date={userSettings.filterDate}
-        label={'Выбрать дату'}
+        startDate={userSettings.dateStart}
+        endDate={userSettings.dateEnd}
         onReloadBtnClick={reloadDocuments}
-        onDateChanged={userSettings.saveFilterDate}
+        onDateChanged={userSettings.saveFilterDateRange}
         initialMode={userSettings.filterMode}
         handleChangeMode={handleChangeMode}
       />

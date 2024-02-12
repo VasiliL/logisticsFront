@@ -1,20 +1,20 @@
 import React, { FC } from 'react';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { SingleDatePicker } from '@src/components/SingleDatePicker/SingleDatePicker';
 import { ToggleButton, ToggleButtonGroup } from '@mui/lab';
+import { RangeDatePicker } from '@src/components/RangeDatePicker/RangeDatePicker';
+import { DateRange } from 'mui-daterange-picker';
 
 interface IDocumentTableFilterProps {
-  date?: Date | string;
-  label: string;
+  startDate?: Date;
+  endDate?: Date;
   onReloadBtnClick: () => void;
-  onDateChanged: (date: Date) => void;
+  onDateChanged: (range: DateRange) => void;
   initialMode: boolean;
   handleChangeMode: (mode: boolean) => void;
 }
 
 export const DocumentTableFilter: FC<IDocumentTableFilterProps> = (props: IDocumentTableFilterProps) => {
-  const { date, label, onDateChanged, onReloadBtnClick, initialMode, handleChangeMode } = props;
+  const { startDate, endDate, onDateChanged, onReloadBtnClick, initialMode, handleChangeMode } = props;
   const [btnDisabled, setBtnDisabled] = React.useState<boolean>(true);
   const [mode, setMode] = React.useState<boolean>(initialMode);
 
@@ -23,8 +23,8 @@ export const DocumentTableFilter: FC<IDocumentTableFilterProps> = (props: IDocum
     onReloadBtnClick();
   };
 
-  const onChange = (date: Date) => {
-    onDateChanged(date);
+  const onChange = (range: DateRange) => {
+    onDateChanged(range);
     setBtnDisabled(false);
   };
 
@@ -34,14 +34,8 @@ export const DocumentTableFilter: FC<IDocumentTableFilterProps> = (props: IDocum
   };
 
   return (
-    <Box style={{ display: 'flex', alignItems: 'flex-start', marginBottom: 10 }}>
-      <SingleDatePicker label={label} date={date} onDateChanged={onChange} />
-      <Button
-        variant="outlined"
-        onClick={onEventBtnClick}
-        disabled={btnDisabled}
-        style={{ marginLeft: 10, height: 38 }}
-      >
+    <RangeDatePicker onDateChanged={onChange} startDate={startDate} endDate={endDate}>
+      <Button variant="outlined" onClick={onEventBtnClick} disabled={btnDisabled}>
         Перестроить таблицу
       </Button>
       <ToggleButtonGroup
@@ -56,6 +50,6 @@ export const DocumentTableFilter: FC<IDocumentTableFilterProps> = (props: IDocum
         <ToggleButton value="full">Расширенная</ToggleButton>
         <ToggleButton value="short">Краткая</ToggleButton>
       </ToggleButtonGroup>
-    </Box>
+    </RangeDatePicker>
   );
 };

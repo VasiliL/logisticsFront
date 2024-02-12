@@ -163,13 +163,16 @@ export const RunTable: FC = observer(() => {
         id: 0,
         date_arrival: defaultDate,
         date_departure: defaultDate,
-        driver: 85, //todo
+        driver: 0,
         invoice_document: '',
         waybill: '',
         acc_date: defaultDate,
         acc_number: '',
         reg_date: defaultDate,
         reg_number: '',
+        client: '',
+        route: '',
+        cargo: '',
       });
     } else if (run !== undefined) {
       return await updateRun({ ...run, car, weight });

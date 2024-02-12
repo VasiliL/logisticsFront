@@ -24,4 +24,7 @@ export interface IRunDto {
   reg_date: string;
   acc_number: string;
   acc_date: string;
+  client: string;
+  route: string;
+  cargo: string;
 }

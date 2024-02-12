@@ -4,10 +4,8 @@ import { nowStr } from '@src/utils/date_utils';
 
 import { IRunBL } from '@src/components/Tables/Table2/store/types';
 
-import { IDataInvoiceBL, IUserSettings } from '@src/store/types';
+import { IUserSettings } from '@src/store/types';
 import { SettingsStore } from '@src/store/SettingsStore';
-
-import { DataApiService } from '@src/service/DataApiService';
 
 import { RunApiService } from '../../Table2/service/RunApiService';
 
@@ -16,8 +14,6 @@ import { IDocumentBL } from './types';
 class CDocumentTableStore {
   // список Run
   private _list: IRunBL[] = [];
-  // список Invoice
-  private _invoices: IDataInvoiceBL[] = [];
   // Флаг состояния формирования списка Run
   private _isPendingList = false;
   // Флаг состояния выполнения действий с Run
@@ -55,14 +51,6 @@ class CDocumentTableStore {
     this._userSettings = value;
   }
 
-  get invoices(): IDataInvoiceBL[] {
-    return this._invoices;
-  }
-
-  set invoices(value: IDataInvoiceBL[]) {
-    this._invoices = value;
-  }
-
   get list(): IRunBL[] {
     return this._list;
   }
@@ -95,7 +83,6 @@ class CDocumentTableStore {
   get entries() {
     const map = new Map<number, IDocumentBL>();
     this.list?.forEach(item => {
-      const invoice = this.invoices.find(inv => inv.id.toString() == item.invoice);
 
       const info = {
         id: item.id,
@@ -105,16 +92,15 @@ class CDocumentTableStore {
         waybill: item.waybill,
         invoice: item.invoice,
         invoice_document: item.invoice_document,
-        date_departure: item.date_departure || invoice?.departure_date,
-        date_arrival: item.date_arrival || invoice?.arrival_date,
+        date_departure: item.date_departure,
+        date_arrival: item.date_arrival,
         reg_number: item.reg_number,
         reg_date: item.reg_date,
         acc_number: item.acc_number,
         acc_date: item.acc_date,
-        client: invoice?.client,
-        cargo: invoice?.cargo,
-        price: invoice?.price,
-        route: invoice?.route,
+        client: item.client,
+        cargo: item.cargo,
+        route: item.route,
       } as IDocumentBL;
       map.set(item.id, info);
     });
@@ -157,9 +143,10 @@ class CDocumentTableStore {
   private async loadListRuns(): Promise<void> {
     try {
       this.isPendingList = true;
-      const date = this.settingsStore?.dateStr || nowStr();
-      this.list = await RunApiService.getListRuns({ start_day: date, end_day: date });
-      this.invoices = await DataApiService.getInvoices({ day: date });
+      const dateStartStr = this.settingsStore?.dateStartStr || nowStr();
+      const dateEndStr = this.settingsStore?.dateEndStr || nowStr();
+
+      this.list = await RunApiService.getListRuns({ start_day: dateStartStr, end_day: dateEndStr });
     } finally {
       this.isPendingList = false;
     }
