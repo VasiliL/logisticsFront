@@ -2,11 +2,11 @@ FROM node:20 as builder
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY . /usr/src/app
 
 RUN npm install
-RUN npm run build:prod
+RUN npm run build:dev
 
-EXPOSE 5000
+COPY . /usr/src/app
 
-CMD [ "npm", "run", "serve" ]
+CMD npm run serve

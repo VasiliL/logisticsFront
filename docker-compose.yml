@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  node:
+    container_name: frontend-node
+    restart: unless-stopped
+    build:
+      context: .
+    ports:
+      - 3000:${WEBAPP_PORT}
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - node_network
+
+  nginx:
+    container_name: frontend-nginx
+    restart: unless-stopped
+    image: nginx
+    ports:
+      - 80:${NGINX_PORT}
+    depends_on:
+      - node
+    volumes:
+      - ./nginx/logistic_com_app.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - node_network
+
+networks:
+  node_network:

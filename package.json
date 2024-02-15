@@ -4,14 +4,14 @@
   "author": "denis.baylo@gmail.com",
   "version": "1.0.0",
   "private": true,
-  "port": 5000,
+  "port": 3000,
   "proxy": "http://5.35.11.241:8000/",
   "scripts": {
     "start": "cross-env NODE_ENV=development webpack serve --config tools/webpack/webpack.config.dev.js",
     "build": "cross-env NODE_ENV=production webpack --config tools/webpack/webpack.config.prod.js",
     "build:prod": "npm run build",
     "build:dev": "cross-env NODE_ENV=development webpack --config tools/webpack/webpack.config.dev.js",
-    "serve": "cross-env NODE_ENV=production webpack serve --port 5000 --config tools/webpack/webpack.config.prod.js",
+    "serve": "cross-env NODE_ENV=production webpack --config tools/webpack/webpack.config.prod.js && cross-env serve dist/",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx src/",
     "prettier": "prettier . --write"
