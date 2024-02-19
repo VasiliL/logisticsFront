@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     build:
       context: .
-    ports:
-      - 3000:${WEBAPP_PORT}
+#    ports:
+#      - 3000:${WEBAPP_PORT}
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
