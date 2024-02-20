@@ -34,21 +34,15 @@ export const PlaceTable: FC = observer(() => {
     const cols: GridColDef[] = [
       {
         field: 'car',
-        headerName: ' ',
+        headerName: 'Номер машины',
         description: 'Номер машины',
         flex: 1,
         minWidth: 200,
         type: 'string',
         align: 'left',
-        sortable: false,
+        sortable: true,
         editable: false,
-        filterable: false,
-        groupable: false,
-        pinnable: false,
-        hideable: false,
-        disableColumnMenu: true,
-        disableReorder: true,
-        hideSortIcons: true,
+        filterable: true
       },
     ];
 
@@ -64,6 +58,7 @@ export const PlaceTable: FC = observer(() => {
           align: 'center',
           sortable: true,
           editable: true,
+          filterable: true,
           valueOptions: ({ row }) => {
             if (!row) {
               // The row is not available when filtering this column
@@ -101,12 +96,12 @@ export const PlaceTable: FC = observer(() => {
       const date = dates[i];
       const fio = obj[date];
       const entry = carEntries?.get(date);
-      const driver_id = driverFioMap.get(fio);
+      const driver_id = driverFioMap.get(fio) || 0;
 
       if (!!entry && entry?.fio !== fio && fio === '') {
         return await deletePlace(entry.id);
-      } else if (!!entry && entry?.fio !== fio) {
-        return await updatePlace({ ...entry, fio });
+      } else if (!!entry && entry?.driver_id !== driver_id) {
+        return await updatePlace({ ...entry, driver_id, fio });
       } else if (!entry && fio !== '') {
         const plate_number = obj.car;
         if (driver_id === undefined) throw new Error('Непредвиденная ошибка сервиса: driver_id == undefined');
