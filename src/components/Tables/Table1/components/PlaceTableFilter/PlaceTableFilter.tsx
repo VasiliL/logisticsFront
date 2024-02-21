@@ -41,7 +41,7 @@ export const PlaceTableFilter: FC<IPlaceTableFilterProps> = (props: IPlaceTableF
       {/* File Upload Button */}
       <label htmlFor="file-upload">
         <input
-          accept="*/xlsx"
+          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
           style={{ display: 'none' }}
           id="file-upload"
           type="file"
