@@ -222,6 +222,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
             delimiter: ';',
             utf8WithBom: true,
             disableToolbarButton: isLoading,
+            gridFilteredSortedRowIdsSelector: true
           }}
           printOptions={{ disableToolbarButton: true }}
           //showQuickFilter={true}
