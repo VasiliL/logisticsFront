@@ -1,7 +1,6 @@
 import React, { FC, useState } from 'react';
 import { DateRange } from 'mui-daterange-picker';
 import Button from '@mui/material/Button';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { RangeDatePicker } from '@src/components/RangeDatePicker/RangeDatePicker';
 
 interface IPlaceTableFilterProps {
@@ -13,7 +12,7 @@ interface IPlaceTableFilterProps {
 }
 
 export const PlaceTableFilter: FC<IPlaceTableFilterProps> = (props: IPlaceTableFilterProps) => {
-  const { startDate, endDate, onReloadBtnClick, onDateChanged, onFileUpload } = props;
+  const { startDate, endDate, onReloadBtnClick, onDateChanged, } = props;
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
 
   const onEventBtnClick = () => {
@@ -25,12 +24,6 @@ export const PlaceTableFilter: FC<IPlaceTableFilterProps> = (props: IPlaceTableF
     onDateChanged(range);
     setBtnDisabled(false);
   };
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && onFileUpload) {
-      onFileUpload(file); // Call the provided onFileUpload function with the selected file
-    }
-  };
 
 
   return (
@@ -38,23 +31,6 @@ export const PlaceTableFilter: FC<IPlaceTableFilterProps> = (props: IPlaceTableF
       <Button variant="outlined" onClick={onEventBtnClick} disabled={btnDisabled}>
         Перестроить таблицу
       </Button>
-      {/* File Upload Button */}
-      <label htmlFor="file-upload">
-        <input
-          accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-          style={{ display: 'none' }}
-          id="file-upload"
-          type="file"
-          onChange={handleFileChange}
-        />
-        <Button
-          variant="contained"
-          component="span"
-          startIcon={<CloudUploadIcon />}
-        >
-          Загрузить Excel
-        </Button>
-      </label>
     </RangeDatePicker>
   );
 };
