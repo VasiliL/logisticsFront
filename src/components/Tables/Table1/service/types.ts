@@ -15,7 +15,7 @@ export interface IPlaceRqDto {
 
 export interface IPlaceDto {
   id: number;
-  date: string;
+  date_place: string;
   car_id: number;
   driver_id: number;
   plate_number: string;

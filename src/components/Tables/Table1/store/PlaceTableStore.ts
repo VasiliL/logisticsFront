@@ -86,7 +86,7 @@ class CPlaceTableStore {
       const itemMap = new Map<string, IPlaceBL>();
       this.list?.forEach(item => {
         if (item.car_id === car.id) {
-          itemMap.set(item.date, item);
+          itemMap.set(item.date_place, item);
         }
       });
       map.set(car.id, itemMap);
