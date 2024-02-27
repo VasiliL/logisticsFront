@@ -12,7 +12,7 @@ interface IPlaceTableFilterProps {
 }
 
 export const PlaceTableFilter: FC<IPlaceTableFilterProps> = (props: IPlaceTableFilterProps) => {
-  const { startDate, endDate, onReloadBtnClick, onDateChanged, } = props;
+  const { startDate, endDate, onReloadBtnClick, onDateChanged } = props;
   const [btnDisabled, setBtnDisabled] = useState<boolean>(true);
 
   const onEventBtnClick = () => {
