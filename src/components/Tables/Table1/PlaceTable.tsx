@@ -10,6 +10,7 @@ import { PageProgressBar } from '@src/components/PageProgressBar/PageProgressBar
 import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { GridColDef } from '@mui/x-data-grid';
 import { PlaceTableFilter } from '@src/components/Tables/Table1/components/PlaceTableFilter/PlaceTableFilter';
+import InputFileUpload from '@src/components/UploadButtons/UploadButtons';
 
 export const PlaceTable: FC = observer(() => {
   const {
@@ -119,12 +120,15 @@ export const PlaceTable: FC = observer(() => {
         <Typography variant="h4">Расстановка водителей на машины</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-      <PlaceTableFilter
-        startDate={userSettings.dateStart}
-        endDate={userSettings.dateEnd}
-        onReloadBtnClick={reloadPlaces}
-        onDateChanged={userSettings.saveFilterDateRange}
-      />
+      <Stack direction="row" spacing={2} alignItems="center" mb={5}>
+        <PlaceTableFilter
+          startDate={userSettings.dateStart}
+          endDate={userSettings.dateEnd}
+          onReloadBtnClick={reloadPlaces}
+          onDateChanged={userSettings.saveFilterDateRange}
+        />
+        <InputFileUpload />
+      </Stack>
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}
