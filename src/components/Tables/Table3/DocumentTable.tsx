@@ -11,7 +11,6 @@ import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { DocumentTableFilter } from '@src/components/Tables/Table3/components/RunTableFilter/DocumentTableFilter';
 import { DocumentTableStore } from '@src/components/Tables/Table3/store/DocumentTableStore';
 import { toStr } from '@src/utils/date_utils';
-import InputFileUpload from '@src/components/UploadButtons/UploadButtons';
 
 export const DocumentTable: FC = observer(() => {
   const { entries, isPendingList, init, isPendingActions, userSettings, reloadDocuments, updateRun } =
@@ -260,17 +259,14 @@ export const DocumentTable: FC = observer(() => {
         <Typography variant="h4">Внесение информации о выставлении рейса заказчику</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-      <Stack direction="row" alignItems="center" mb={5} spacing={2}>
-        <DocumentTableFilter
-          startDate={userSettings.dateStart}
-          endDate={userSettings.dateEnd}
-          onReloadBtnClick={reloadDocuments}
-          onDateChanged={userSettings.saveFilterDateRange}
-          initialMode={userSettings.filterMode}
-          handleChangeMode={handleChangeMode}
-        />
-        <InputFileUpload/>
-      </Stack>
+      <DocumentTableFilter
+        startDate={userSettings.dateStart}
+        endDate={userSettings.dateEnd}
+        onReloadBtnClick={reloadDocuments}
+        onDateChanged={userSettings.saveFilterDateRange}
+        initialMode={userSettings.filterMode}
+        handleChangeMode={handleChangeMode}
+      />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}

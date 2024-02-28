@@ -10,7 +10,6 @@ import { PageProgressBar } from '@src/components/PageProgressBar/PageProgressBar
 import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { GridColDef } from '@mui/x-data-grid';
 import { PlaceTableFilter } from '@src/components/Tables/Table1/components/PlaceTableFilter/PlaceTableFilter';
-import InputFileUpload from '@src/components/UploadButtons/UploadButtons';
 
 export const PlaceTable: FC = observer(() => {
   const {
@@ -20,6 +19,7 @@ export const PlaceTable: FC = observer(() => {
     deletePlace,
     updatePlace,
     createPlace,
+    uploadNew,
     isPendingActions,
     reloadPlaces,
     dates,
@@ -114,21 +114,23 @@ export const PlaceTable: FC = observer(() => {
     throw new Error('Непредвиденная ошибка сервиса: Не найдены записи для обновления');
   };
 
+  //Обрабатываем загрузку файла
+  const handleUploadFileNew = async (file: File): Promise<boolean> => {
+    return await uploadNew(file);
+  };
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
         <Typography variant="h4">Расстановка водителей на машины</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-      <Stack direction="row" spacing={2} alignItems="center" mb={5}>
         <PlaceTableFilter
           startDate={userSettings.dateStart}
           endDate={userSettings.dateEnd}
           onReloadBtnClick={reloadPlaces}
           onDateChanged={userSettings.saveFilterDateRange}
         />
-        <InputFileUpload />
-      </Stack>
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}
@@ -148,6 +150,7 @@ export const PlaceTable: FC = observer(() => {
           saveTableFilterData={userSettings.saveTableFilterData}
           saveTableDensityMode={userSettings.saveTableDensityMode}
           mutationUpdate={handleUpdate}
+          uploadFileNew={handleUploadFileNew}
         />
       </PageProgressBar>
     </>

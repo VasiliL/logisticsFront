@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { FC, useCallback, useEffect } from 'react';
+import React, { FC, useCallback, useEffect, useState } from 'react';
 import {
   GridColDef,
   GridColumnVisibilityModel,
@@ -19,12 +19,15 @@ import {
 } from '@mui/x-data-grid';
 import { GridEditMode } from '@mui/x-data-grid/models/gridEditRowModel';
 import Button from '@mui/material/Button';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+
 
 import Snackbar from '@mui/material/Snackbar/Snackbar';
 import { Alert } from '@mui/lab';
 import { AlertProps, Dialog, DialogActions, DialogTitle } from '@mui/material';
 
-import { StyledDataGrid, Transition, useStyles } from './StyledDataGrid';
+import { StyledDataGrid, Transition, useStyles, VisuallyHiddenInput } from './StyledDataGrid';
+
 
 interface IDataTableGridProps {
   // table data
@@ -53,6 +56,7 @@ interface IDataTableGridProps {
   onRowClick?: (id: string) => void;
   notUpdateRowAfterMutate?: boolean;
   isLoading?: boolean;
+  uploadFileNew?: (file: File) => Promise<boolean>;
   // export
   exportFileName?: string;
   exportHeaders?: string[];
@@ -92,14 +96,19 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     notUpdateRowAfterMutate,
     editMode,
     mutationUpdate,
+    uploadFileNew,
     onRowClick,
     exportFileName,
     exportHeaders,
     prefixForRowBlockedStyle,
     isLoading,
   } = props;
-  const [promiseArguments, setPromiseArguments] = React.useState<any>(null);
-  const [snackbar, setSnackbar] = React.useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
+
+  const [openFileDialog, setOpenFileDialog] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [promiseArguments, setPromiseArguments] = useState<any>(null);
+  const [snackbar, setSnackbar] = useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
 
   const handleCloseSnackbar = () => setSnackbar(null);
 
@@ -143,7 +152,9 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     return apiRef.current.subscribeEvent('rowClick', handleRowClick);
   }, [apiRef, onRowClick]);
 
+  // Диалог подтверждения изменений
   const renderConfirmDialog = () => {
+
     const handleNo = () => {
       const { oldRow, resolve } = promiseArguments;
       resolve(oldRow);
@@ -207,6 +218,52 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       </Dialog>
     );
   };
+  // Диалог подтверждения изменений
+
+  const handleFileSelection = (event) => {
+    const file = event.target.files[0];
+    if (file && !isUploading) {
+      try {
+        setSelectedFile(file); // Save the selected file
+      }
+      finally {
+        setOpenFileDialog(true); // Open the dialog
+      }
+    }
+  };
+
+  const handleConfirmUpload = async () => {
+    if (selectedFile && uploadFileNew && !isUploading) {
+      setIsUploading(true);
+      setOpenFileDialog(false); // Close the dialog after handling the confirmation
+      try {
+        const uploadResult = await uploadFileNew(selectedFile);
+        console.log('Upload successful:', uploadResult);
+      }
+      finally {
+        setIsUploading(false); // Re-enable the button
+        setSelectedFile(null);
+      }
+    }
+  };
+
+  const AlertDialog = () => (
+      <Dialog
+        maxWidth="xs"
+        open={openFileDialog && !isUploading}
+        onClose={() => setOpenFileDialog(false)}
+        TransitionComponent={Transition}
+        keepMounted
+        disableRestoreFocus
+      >
+        <DialogTitle>Загрузить данные из файла?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setOpenFileDialog(false)} autoFocus>Отмена</Button>
+          <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
+        </DialogActions>
+      </Dialog>
+    );
+
 
   const CustomToolbar = () => {
     return (
@@ -228,6 +285,14 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
           //showQuickFilter={true}
           //quickFilterProps={{ debounceMs: 250 }}
         />
+        <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
+          Загрузить новые записи Excel
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={handleFileSelection}/>
+        </Button>
+        <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
+          Загрузить изменения Excel
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={handleFileSelection}/>
+        </Button>
       </GridToolbarContainer>
     );
   };
@@ -235,6 +300,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
   return (
     <>
       {renderConfirmDialog()}
+      <AlertDialog />
       <StyledDataGrid
         rows={initialRows}
         columns={initialColumns}

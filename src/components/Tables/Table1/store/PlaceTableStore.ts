@@ -167,6 +167,16 @@ class CPlaceTableStore {
     }
   }
 
+  public async uploadNew(file: File): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+
+      return await PlaceApiService.uploadFileNew(file);
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
+
   // #endregion
 }
 

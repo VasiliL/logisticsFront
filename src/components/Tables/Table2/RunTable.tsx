@@ -12,7 +12,6 @@ import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { toStr } from '@src/utils/date_utils';
 import { RunTableFilter } from '@src/components/Tables/Table2/components/RunTableFilter/RunTableFilter';
 import { isNumber } from '@src/utils/number_utils';
-import InputFileUpload from '@src/components/UploadButtons/UploadButtons';
 
 
 export const RunTable: FC = observer(() => {
@@ -189,17 +188,14 @@ export const RunTable: FC = observer(() => {
         <Typography variant="h4">Расстановка машин на маршруты</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-      <Stack direction="row" mb={5} spacing={2}>
-        <RunTableFilter
-          date={userSettings.filterDate}
-          label={'Выбрать дату'}
-          onReloadBtnClick={reloadRuns}
-          onDeleteBtnClick={handleRowDeleteClick}
-          deleteBtnDisabled={isDeleteBtnDisabled}
-          onDateChanged={userSettings.saveFilterDate}
-        />
-        <InputFileUpload/>
-      </Stack>
+      <RunTableFilter
+        date={userSettings.filterDate}
+        label={'Выбрать дату'}
+        onReloadBtnClick={reloadRuns}
+        onDeleteBtnClick={handleRowDeleteClick}
+        deleteBtnDisabled={isDeleteBtnDisabled}
+        onDateChanged={userSettings.saveFilterDate}
+      />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}

@@ -58,11 +58,28 @@ class CPlaceApiService implements IPlaceApiService {
   /**
    * Upload xlsx file with new data and POST it to API
    */
-  async uploadFile(file: File): Promise<boolean> {
-    const result = await this.UploadFileNewPlace.callAction(`${this.HOST_URL}/upload_xlsx`, 'POST', file);
-    console.debug(result);
+  async uploadFileNew(file: File): Promise<boolean> {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await fetch(`${this.HOST_URL}/upload_xlsx`, {
+        method: 'POST',
+        body: formData
+      });
 
-    return result as boolean;
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const result = await response.json();
+      console.debug(result);
+
+      return true;
+    } catch (error) {
+      console.error('Upload error:', error);
+
+      return false;
+    }
   }
 }
 

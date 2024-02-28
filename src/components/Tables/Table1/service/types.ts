@@ -6,6 +6,8 @@ export interface IPlaceApiService {
   updatePlace(dto: IPlaceDto): Promise<boolean>;
 
   deletePlace(id: number): Promise<boolean>;
+
+  uploadFileNew(file: File): Promise<boolean>;
 }
 
 export interface IPlaceRqDto {
