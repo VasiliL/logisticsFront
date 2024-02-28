@@ -48,11 +48,11 @@ export const PlaceTable: FC = observer(() => {
     ];
 
     const dateCols: GridColDef[] =
-      dates?.map(date => {
+      dates?.map(date_place => {
         return {
-          field: date,
-          headerName: date,
-          description: `Дата ${date}`,
+          field: date_place,
+          headerName: date_place,
+          description: `Дата ${date_place}`,
           flex: 1,
           minWidth: 200,
           type: 'singleSelect',
@@ -80,8 +80,8 @@ export const PlaceTable: FC = observer(() => {
         const row = {};
         row['id'] = car.id;
         row['car'] = car.description;
-        dates?.map(date => {
-          row[date] = entries.get(car.id)?.get(date)?.fio || '';
+        dates?.map(date_place => {
+          row[date_place] = entries.get(car.id)?.get(date_place)?.fio || '';
         });
 
         return row;
@@ -94,9 +94,9 @@ export const PlaceTable: FC = observer(() => {
     const carEntries = entries.get(car_id);
 
     for (let i = 0; i < dates.length; i++) {
-      const date = dates[i];
-      const fio = obj[date];
-      const entry = carEntries?.get(date);
+      const date_place = dates[i];
+      const fio = obj[date_place];
+      const entry = carEntries?.get(date_place);
       const driver_id = driverFioMap.get(fio) || 0;
 
       if (!!entry && entry?.fio !== fio && fio === '') {
@@ -107,7 +107,7 @@ export const PlaceTable: FC = observer(() => {
         const plate_number = obj.car;
         if (driver_id === undefined) throw new Error('Непредвиденная ошибка сервиса: driver_id == undefined');
 
-        return await createPlace({ date_place:date, car_id, driver_id, fio, plate_number, id: 0 });
+        return await createPlace({ date_place, car_id, driver_id, fio, plate_number, id: 0 });
       }
     }
 

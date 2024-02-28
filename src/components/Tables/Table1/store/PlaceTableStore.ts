@@ -79,7 +79,7 @@ class CPlaceTableStore {
 
   // #region business logic (BL)
 
-  // список данных для клеток таблицы в виде car_id -> date -> place
+  // список данных для клеток таблицы в виде car_id -> date_place -> place
   get entries() {
     const map = new Map<number, Map<string, IPlaceBL>>();
     DictStore.cars?.forEach(car => {
