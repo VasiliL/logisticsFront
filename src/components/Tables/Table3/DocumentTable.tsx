@@ -10,6 +10,7 @@ import { GridColDef } from '@mui/x-data-grid';
 import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { DocumentTableFilter } from '@src/components/Tables/Table3/components/RunTableFilter/DocumentTableFilter';
 import { DocumentTableStore } from '@src/components/Tables/Table3/store/DocumentTableStore';
+import { RunTableStore } from '@src/components/Tables/Table2/store/RunTableStore';
 import { toStr } from '@src/utils/date_utils';
 
 export const DocumentTable: FC = observer(() => {
@@ -192,7 +193,7 @@ export const DocumentTable: FC = observer(() => {
         editable: true,
         headerClassName: 'super-app-theme--header',
         valueGetter: ({ value }) => value && new Date(value),
-      },
+      }
     ];
 
     return cols;
@@ -254,6 +255,14 @@ export const DocumentTable: FC = observer(() => {
     setVisibilityModel(model);
   };
 
+  const handleUploadFileNew = async (file: File): Promise<boolean> => {
+    return await RunTableStore.uploadNew(file);
+  };
+
+  const handleUploadFileExist = async (file: File): Promise<boolean> => {
+    return await RunTableStore.uploadExists(file);
+  }
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
@@ -289,6 +298,8 @@ export const DocumentTable: FC = observer(() => {
           saveTableFilterData={userSettings.saveTableFilterData}
           saveTableDensityMode={userSettings.saveTableDensityMode}
           mutationUpdate={handleUpdate}
+          uploadFileNew={handleUploadFileNew}
+          uploadFileExist={handleUploadFileExist}
           exportFileName={'Внесение информации о выставлении рейса заказчику'}
           isLoading={isLoading || isPendingList}
         />

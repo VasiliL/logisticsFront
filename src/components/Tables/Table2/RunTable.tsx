@@ -24,6 +24,8 @@ export const RunTable: FC = observer(() => {
     createRun,
     isPendingActions,
     reloadRuns,
+    uploadNew,
+    uploadExists,
     userSettings,
     invoiceList,
   } = RunTableStore;
@@ -182,6 +184,14 @@ export const RunTable: FC = observer(() => {
     throw new Error('Непредвиденная ошибка сервиса: Не найдены записи для обновления');
   };
 
+  const handleUploadFileNew = async (file: File): Promise<boolean> => {
+    return await uploadNew(file);
+  };
+
+  const handleUploadFileExist = async (file: File): Promise<boolean> => {
+    return await uploadExists(file);
+  };
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
@@ -221,6 +231,8 @@ export const RunTable: FC = observer(() => {
           exportFileName={'Расстановка машин на маршруты'}
           exportHeaders={['invoice', 'car', 'weight']}
           prefixForRowBlockedStyle={'invoice_'}
+          uploadFileNew={handleUploadFileNew}
+          uploadFileExist={handleUploadFileExist}
         />
       </PageProgressBar>
     </>

@@ -54,6 +54,43 @@ class CRunApiService implements IRunApiService {
 
     return result as boolean;
   }
+  async uploadFile(method: string, file: File): Promise<boolean> {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const response = await fetch(`${this.HOST_URL}/upload_xlsx`, {
+        method: method,
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const result = await response.json();
+      console.debug(result);
+
+      return true;
+    } catch (error) {
+      console.error('Upload error:', error);
+
+      return false;
+    }
+  }
+
+  /**
+   * Upload xlsx files: new
+   */
+  async uploadNew(file: File): Promise<boolean> {
+    return await this.uploadFile('POST', file);
+  }
+
+  /**
+   * Upload xlsx files: exists
+   */
+  async uploadExists(file: File): Promise<boolean> {
+    return await this.uploadFile('PUT', file);
+  }
 }
 
 export const RunApiService: IRunApiService = new CRunApiService();

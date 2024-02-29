@@ -8,6 +8,12 @@ export interface IRunApiService {
   updateRun(dto: IRunDto): Promise<boolean>;
 
   deleteRun(id: number): Promise<boolean>;
+
+  uploadFile(method: string, file: File): Promise<boolean>;
+
+  uploadNew(file: File): Promise<boolean>;
+
+  uploadExists(file: File): Promise<boolean>;
 }
 
 export interface IRunDto {

@@ -11,6 +11,7 @@ import { SettingsStore } from '@src/store/SettingsStore';
 import { RunApiService } from '../service/RunApiService';
 
 import { IRunBL } from './types';
+import { PlaceApiService } from '@src/components/Tables/Table1/service/PlaceApiService';
 
 class CRunTableStore {
   // список Run
@@ -182,6 +183,25 @@ class CRunTableStore {
     }
   }
 
+  public async uploadNew(file: File): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+
+      return await RunApiService.uploadNew(file);
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
+
+  public async uploadExists(file: File): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+
+      return await RunApiService.uploadExists(file);
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
   // #endregion
 }
 
