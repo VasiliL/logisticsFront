@@ -7,7 +7,11 @@ export interface IPlaceApiService {
 
   deletePlace(id: number): Promise<boolean>;
 
-  uploadFileNew(file: File): Promise<boolean>;
+  uploadFile(method: string, file: File): Promise<boolean>;
+
+  uploadNew(file: File): Promise<boolean>;
+
+  uploadExists(file: File): Promise<boolean>;
 }
 
 export interface IPlaceRqDto {

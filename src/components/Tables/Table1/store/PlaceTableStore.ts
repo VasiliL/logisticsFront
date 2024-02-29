@@ -171,7 +171,17 @@ class CPlaceTableStore {
     try {
       this.isPendingActions = true;
 
-      return await PlaceApiService.uploadFileNew(file);
+      return await PlaceApiService.uploadNew(file);
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
+
+  public async uploadExists(file: File): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+
+      return await PlaceApiService.uploadExists(file);
     } finally {
       this.isPendingActions = false;
     }

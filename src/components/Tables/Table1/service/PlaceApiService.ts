@@ -9,8 +9,6 @@ class CPlaceApiService implements IPlaceApiService {
   private CreatePlaceAction = new Action<IPlaceDto, number>();
   private UpdatePlaceAction = new Action<IPlaceDto, boolean>();
   private DeletePlaceAction = new Action<number, boolean>();
-  private UploadFileNewPlace = new Action<File, boolean>();
-  private UploadFileExistsPlace = new Action<File, boolean>();
 
   /**
    * Получить список записей Places
@@ -56,14 +54,14 @@ class CPlaceApiService implements IPlaceApiService {
   }
 
   /**
-   * Upload xlsx file with new data and POST it to API
+   * Upload xlsx files
    */
-  async uploadFileNew(file: File): Promise<boolean> {
+  async uploadFile(method: string, file: File): Promise<boolean> {
     const formData = new FormData();
     formData.append('file', file);
     try {
       const response = await fetch(`${this.HOST_URL}/upload_xlsx`, {
-        method: 'POST',
+        method: method,
         body: formData
       });
 
@@ -80,6 +78,20 @@ class CPlaceApiService implements IPlaceApiService {
 
       return false;
     }
+  }
+
+  /**
+   * Upload xlsx files: new
+   */
+  async uploadNew(file: File): Promise<boolean> {
+    return await this.uploadFile('POST', file);
+  }
+
+  /**
+   * Upload xlsx files: exists
+   */
+  async uploadExists(file: File): Promise<boolean> {
+    return await this.uploadFile('PUT', file);
   }
 }
 

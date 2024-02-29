@@ -20,6 +20,7 @@ export const PlaceTable: FC = observer(() => {
     updatePlace,
     createPlace,
     uploadNew,
+    uploadExists,
     isPendingActions,
     reloadPlaces,
     dates,
@@ -119,6 +120,10 @@ export const PlaceTable: FC = observer(() => {
     return await uploadNew(file);
   };
 
+  const handleUploadFileExist = async (file: File): Promise<boolean> => {
+    return await uploadExists(file);
+  };
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
@@ -151,6 +156,7 @@ export const PlaceTable: FC = observer(() => {
           saveTableDensityMode={userSettings.saveTableDensityMode}
           mutationUpdate={handleUpdate}
           uploadFileNew={handleUploadFileNew}
+          uploadFileExist={handleUploadFileExist}
         />
       </PageProgressBar>
     </>

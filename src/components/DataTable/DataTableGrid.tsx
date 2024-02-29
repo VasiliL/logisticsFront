@@ -57,6 +57,7 @@ interface IDataTableGridProps {
   notUpdateRowAfterMutate?: boolean;
   isLoading?: boolean;
   uploadFileNew?: (file: File) => Promise<boolean>;
+  uploadFileExist?: (file: File) => Promise<boolean>;
   // export
   exportFileName?: string;
   exportHeaders?: string[];
@@ -97,6 +98,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     editMode,
     mutationUpdate,
     uploadFileNew,
+    uploadFileExist,
     onRowClick,
     exportFileName,
     exportHeaders,
@@ -106,6 +108,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
 
   const [openFileDialog, setOpenFileDialog] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [fileStatus, setFileStatus] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [promiseArguments, setPromiseArguments] = useState<any>(null);
   const [snackbar, setSnackbar] = useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
@@ -220,29 +223,40 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
   };
   // Диалог подтверждения изменений
 
-  const handleFileSelection = (event) => {
+  const handleFileSelection = (event, source: string) => {
     const file = event.target.files[0];
     if (file && !isUploading) {
       try {
         setSelectedFile(file); // Save the selected file
       }
       finally {
+        setFileStatus(source); // Save the source of the file
         setOpenFileDialog(true); // Open the dialog
       }
     }
   };
 
   const handleConfirmUpload = async () => {
-    if (selectedFile && uploadFileNew && !isUploading) {
+    if (selectedFile && (uploadFileNew || uploadFileExist) && fileStatus && !isUploading) {
       setIsUploading(true);
       setOpenFileDialog(false); // Close the dialog after handling the confirmation
       try {
-        const uploadResult = await uploadFileNew(selectedFile);
-        console.log('Upload successful:', uploadResult);
+        if (uploadFileNew && fileStatus === 'new') {
+          const uploadResult = await uploadFileNew(selectedFile);
+          console.log('Upload successful:', uploadResult);
+        }
+        else if (uploadFileExist && fileStatus === 'exists') {
+          const uploadResult = await uploadFileExist(selectedFile);
+          console.log('Upload successful:', uploadResult);
+        }
+        else {
+          throw new Error('Неизвестный источник файла');
+        }
       }
       finally {
         setIsUploading(false); // Re-enable the button
         setSelectedFile(null);
+        setFileStatus(null);
       }
     }
   };
@@ -258,7 +272,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       >
         <DialogTitle>Загрузить данные из файла?</DialogTitle>
         <DialogActions>
-          <Button onClick={() => setOpenFileDialog(false)} autoFocus>Отмена</Button>
+          <Button onClick={() => setOpenFileDialog(false)}>Отмена</Button>
           <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
         </DialogActions>
       </Dialog>
@@ -287,11 +301,11 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         />
         <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
           Загрузить новые записи Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={handleFileSelection}/>
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'new')}/>
         </Button>
         <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
           Загрузить изменения Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={handleFileSelection}/>
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'exists')}/>
         </Button>
       </GridToolbarContainer>
     );
