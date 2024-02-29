@@ -76,7 +76,7 @@ export const DocumentTable: FC = observer(() => {
         minWidth: 100,
         type: 'string',
         align: 'center',
-        editable: false,
+        editable: true,
         headerClassName: 'super-app-theme--header',
       },
       {
@@ -210,8 +210,8 @@ export const DocumentTable: FC = observer(() => {
     return Array.from(entries.values()).map(item => ({
       id: item.id,
       run_id: item.id,
-      car: carIdMap.get(item.car) || 'Номер машины не найден',
-      driver: driverIdMap.get(item.driver) || 'ФИО водителя не найдены',
+      car: carIdMap.get(item.car_id as number),
+      driver: driverIdMap.get(item.driver_id as number),
       waybill: item.waybill,
       invoice_document: item.invoice_document,
       date_departure: item.date_departure,
@@ -234,6 +234,7 @@ export const DocumentTable: FC = observer(() => {
     let reg_date = obj.reg_date !== null ? toStr(obj.reg_date) : obj.reg_date;
     let acc_date = obj.acc_date !== null ? toStr(obj.acc_date) : obj.acc_date;
     const waybill = obj.waybill;
+    const weight = obj.weight;
     const invoice_document = obj.invoice_document;
 
     reg_date = reg_date === 'Invalid date' ? null : reg_date;
@@ -243,7 +244,7 @@ export const DocumentTable: FC = observer(() => {
     const entry = entries.get(rowId);
     if (entry === undefined) return false;
 
-    return await updateRun({ ...entry, reg_number, reg_date, acc_number, acc_date, waybill, invoice_document });
+    return await updateRun({ ...entry, reg_number, reg_date, acc_number, acc_date, waybill, invoice_document, weight });
   };
 
   const handleChangeMode = (mode: boolean): void => {

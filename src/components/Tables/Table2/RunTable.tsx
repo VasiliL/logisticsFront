@@ -115,7 +115,7 @@ export const RunTable: FC = observer(() => {
             id: run.id,
             invoice_id: invoice.id,
             invoice: `${index === 0 ? `вес по заявке из инвойсов: ${invoice.weight}` : ''}`,
-            car: carIdMap.get(run.car) || 'Номер машины не найден',
+            car: carIdMap.get(run.car_id) || 'Номер машины не найден',
             weight: run.weight,
           });
         });
@@ -151,32 +151,32 @@ export const RunTable: FC = observer(() => {
 
     const entry = entries.get(invoice);
     const run = entry?.find(r => r.id.toString() == rowId);
-    const car = carNumberMap.get(obj.car?.toString() || '') || 0;
+    const car_id = carNumberMap.get(obj.car?.toString() || '') || 0;
     const weight = obj.weight?.toString() || 0;
 
     if (!run && rowId.startsWith('empty_')) {
       const defaultDate = toStr(userSettings.filterDate);
 
       return await createRun({
-        invoice,
-        car,
+        invoice_id: invoice,
+        car_id,
         weight,
         id: 0,
-        date_arrival: defaultDate,
+        date_arrival: '',
         date_departure: defaultDate,
-        driver: 0,
+        driver_id: null,
         invoice_document: '',
         waybill: '',
-        acc_date: defaultDate,
+        acc_date: '',
         acc_number: '',
-        reg_date: defaultDate,
+        reg_date: '',
         reg_number: '',
         client: '',
         route: '',
         cargo: '',
       });
     } else if (run !== undefined) {
-      return await updateRun({ ...run, car, weight });
+      return await updateRun({ ...run, car_id, weight });
     }
 
     throw new Error('Непредвиденная ошибка сервиса: Не найдены записи для обновления');

@@ -96,7 +96,7 @@ class CRunTableStore {
     this.invoices?.forEach(invoice => {
       const itemList: IRunBL[] = [];
       this.list?.forEach(item => {
-        if (item.invoice == invoice.id.toString()) {
+        if (item.invoice_id == invoice.id) {
           itemList.push(item);
         }
       });
@@ -141,7 +141,7 @@ class CRunTableStore {
       if (result) {
         const found = this.list.find(item => item.id === dto.id);
         if (found) {
-          found.invoice = dto.invoice;
+          found.invoice_id = dto.invoice_id;
         } else {
           throw new Error('Непредвиденная ошибка сервиса');
         }

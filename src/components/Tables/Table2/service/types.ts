@@ -12,9 +12,9 @@ export interface IRunApiService {
 
 export interface IRunDto {
   id: number;
-  car: number; // car_id
-  driver: number; // driver_id
-  invoice: string;
+  car_id: number;
+  driver_id: number | null;
+  invoice_id: number;
   invoice_document: string;
   waybill: string;
   weight: number;
