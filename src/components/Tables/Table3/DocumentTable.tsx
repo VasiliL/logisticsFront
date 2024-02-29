@@ -261,7 +261,7 @@ export const DocumentTable: FC = observer(() => {
 
   const handleUploadFileExist = async (file: File): Promise<boolean> => {
     return await RunTableStore.uploadExists(file);
-  }
+  };
 
   return (
     <>
