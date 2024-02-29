@@ -11,7 +11,6 @@ import { SettingsStore } from '@src/store/SettingsStore';
 import { RunApiService } from '../service/RunApiService';
 
 import { IRunBL } from './types';
-import { PlaceApiService } from '@src/components/Tables/Table1/service/PlaceApiService';
 
 class CRunTableStore {
   // список Run
