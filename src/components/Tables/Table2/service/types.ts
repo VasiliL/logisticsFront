@@ -8,13 +8,19 @@ export interface IRunApiService {
   updateRun(dto: IRunDto): Promise<boolean>;
 
   deleteRun(id: number): Promise<boolean>;
+
+  uploadFile(method: string, file: File): Promise<boolean>;
+
+  uploadNew(file: File): Promise<boolean>;
+
+  uploadExists(file: File): Promise<boolean>;
 }
 
 export interface IRunDto {
   id: number;
-  car: number; // car_id
-  driver: number; // driver_id
-  invoice: string;
+  car_id: number;
+  driver_id: number | null;
+  invoice_id: number;
   invoice_document: string;
   waybill: string;
   weight: number;

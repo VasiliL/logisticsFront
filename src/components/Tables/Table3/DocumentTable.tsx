@@ -10,6 +10,7 @@ import { GridColDef } from '@mui/x-data-grid';
 import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { DocumentTableFilter } from '@src/components/Tables/Table3/components/RunTableFilter/DocumentTableFilter';
 import { DocumentTableStore } from '@src/components/Tables/Table3/store/DocumentTableStore';
+import { RunTableStore } from '@src/components/Tables/Table2/store/RunTableStore';
 import { toStr } from '@src/utils/date_utils';
 
 export const DocumentTable: FC = observer(() => {
@@ -76,7 +77,7 @@ export const DocumentTable: FC = observer(() => {
         minWidth: 100,
         type: 'string',
         align: 'center',
-        editable: false,
+        editable: true,
         headerClassName: 'super-app-theme--header',
       },
       {
@@ -192,7 +193,7 @@ export const DocumentTable: FC = observer(() => {
         editable: true,
         headerClassName: 'super-app-theme--header',
         valueGetter: ({ value }) => value && new Date(value),
-      },
+      }
     ];
 
     return cols;
@@ -210,6 +211,8 @@ export const DocumentTable: FC = observer(() => {
     return Array.from(entries.values()).map(item => ({
       id: item.id,
       run_id: item.id,
+      car: carIdMap.get(item.car_id as number),
+      driver: driverIdMap.get(item.driver_id as number),
       car: carIdMap.get(item.car) || 'Номер машины не найден',
       driver: driverIdMap.get(item.driver) || 'ФИО водителя не найдены',
       waybill: item.waybill,
@@ -234,6 +237,7 @@ export const DocumentTable: FC = observer(() => {
     let reg_date = obj.reg_date !== null ? toStr(obj.reg_date) : obj.reg_date;
     let acc_date = obj.acc_date !== null ? toStr(obj.acc_date) : obj.acc_date;
     const waybill = obj.waybill;
+    const weight = obj.weight;
     const invoice_document = obj.invoice_document;
 
     reg_date = reg_date === 'Invalid date' ? null : reg_date;
@@ -243,7 +247,7 @@ export const DocumentTable: FC = observer(() => {
     const entry = entries.get(rowId);
     if (entry === undefined) return false;
 
-    return await updateRun({ ...entry, reg_number, reg_date, acc_number, acc_date, waybill, invoice_document });
+    return await updateRun({ ...entry, reg_number, reg_date, acc_number, acc_date, waybill, invoice_document, weight });
   };
 
   const handleChangeMode = (mode: boolean): void => {
@@ -251,6 +255,14 @@ export const DocumentTable: FC = observer(() => {
     userSettings.saveFilterMode(mode);
     userSettings.saveTableVisibilityData(model);
     setVisibilityModel(model);
+  };
+
+  const handleUploadFileNew = async (file: File): Promise<boolean> => {
+    return await RunTableStore.uploadNew(file);
+  };
+
+  const handleUploadFileExist = async (file: File): Promise<boolean> => {
+    return await RunTableStore.uploadExists(file);
   };
 
   return (
@@ -288,6 +300,8 @@ export const DocumentTable: FC = observer(() => {
           saveTableFilterData={userSettings.saveTableFilterData}
           saveTableDensityMode={userSettings.saveTableDensityMode}
           mutationUpdate={handleUpdate}
+          uploadFileNew={handleUploadFileNew}
+          uploadFileExist={handleUploadFileExist}
           exportFileName={'Внесение информации о выставлении рейса заказчику'}
           isLoading={isLoading || isPendingList}
         />

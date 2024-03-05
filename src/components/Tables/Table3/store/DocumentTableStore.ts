@@ -86,11 +86,11 @@ class CDocumentTableStore {
 
       const info = {
         id: item.id,
-        car: item.car,
-        driver: item.driver,
+        car_id: item.car_id,
+        driver_id: item.driver_id,
         weight: item.weight,
         waybill: item.waybill,
-        invoice: item.invoice,
+        invoice_id: item.invoice_id,
         invoice_document: item.invoice_document,
         date_departure: item.date_departure,
         date_arrival: item.date_arrival,
@@ -122,6 +122,7 @@ class CDocumentTableStore {
         reg_number: dto.reg_number,
         waybill: dto.waybill,
         invoice_document: dto.invoice_document,
+        weight: dto.weight
       });
       if (result) {
         found.acc_date = dto.acc_date;

@@ -79,14 +79,14 @@ class CPlaceTableStore {
 
   // #region business logic (BL)
 
-  // список данных для клеток таблицы в виде car_id -> date -> place
+  // список данных для клеток таблицы в виде car_id -> date_place -> place
   get entries() {
     const map = new Map<number, Map<string, IPlaceBL>>();
     DictStore.cars?.forEach(car => {
       const itemMap = new Map<string, IPlaceBL>();
       this.list?.forEach(item => {
         if (item.car_id === car.id) {
-          itemMap.set(item.date, item);
+          itemMap.set(item.date_place, item);
         }
       });
       map.set(car.id, itemMap);
@@ -164,6 +164,26 @@ class CPlaceTableStore {
       this.list = await PlaceApiService.getListPlaces({ start_day: dateStartStr, end_day: dateEndStr });
     } finally {
       this.isPendingList = false;
+    }
+  }
+
+  public async uploadNew(file: File): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+
+      return await PlaceApiService.uploadNew(file);
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
+
+  public async uploadExists(file: File): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+
+      return await PlaceApiService.uploadExists(file);
+    } finally {
+      this.isPendingActions = false;
     }
   }
 

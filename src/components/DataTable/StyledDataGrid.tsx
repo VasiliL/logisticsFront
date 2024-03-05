@@ -6,6 +6,7 @@ import { TransitionProps } from '@mui/material/transitions';
 import { Slide } from '@mui/material';
 import React, { forwardRef } from 'react';
 
+
 const getBackgroundColor = (color: string, mode: string) =>
   mode === 'dark' ? darken(color, 0.7) : lighten(color, 0.7);
 
@@ -23,6 +24,17 @@ export const useStyles: any = makeStyles({
     // display: 'flex',
     // flexDirection: 'column-reverse',
   },
+});
+
+export const VisuallyHiddenInput = styled('input')({
+  clipPath: 'inset(50%)',
+  height: 1,
+  overflow: 'hidden',
+  position: 'absolute',
+  bottom: 0,
+  left: 0,
+  whiteSpace: 'nowrap',
+  width: 1,
 });
 
 export const Transition = forwardRef(function Transition(
