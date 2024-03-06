@@ -228,8 +228,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     if (file && !isUploading) {
       try {
         setSelectedFile(file); // Save the selected file
-      }
-      finally {
+      } finally {
         setFileStatus(source); // Save the source of the file
         setOpenFileDialog(true); // Open the dialog
       }
@@ -244,16 +243,13 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         if (uploadFileNew && fileStatus === 'new') {
           const uploadResult = await uploadFileNew(selectedFile);
           console.log('Upload successful:', uploadResult);
-        }
-        else if (uploadFileExist && fileStatus === 'exists') {
+        } else if (uploadFileExist && fileStatus === 'exists') {
           const uploadResult = await uploadFileExist(selectedFile);
           console.log('Upload successful:', uploadResult);
-        }
-        else {
+        } else {
           throw new Error('Неизвестный источник файла');
         }
-      }
-      finally {
+      } finally {
         setIsUploading(false); // Re-enable the button
         setSelectedFile(null);
         setFileStatus(null);
@@ -262,21 +258,21 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
   };
 
   const AlertDialog = () => (
-      <Dialog
-        maxWidth="xs"
-        open={openFileDialog && !isUploading}
-        onClose={() => setOpenFileDialog(false)}
-        TransitionComponent={Transition}
-        keepMounted
-        disableRestoreFocus
-      >
-        <DialogTitle>Загрузить данные из файла?</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setOpenFileDialog(false)}>Отмена</Button>
-          <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
-        </DialogActions>
-      </Dialog>
-    );
+    <Dialog
+      maxWidth="xs"
+      open={openFileDialog && !isUploading}
+      onClose={() => setOpenFileDialog(false)}
+      TransitionComponent={Transition}
+      keepMounted
+      disableRestoreFocus
+    >
+      <DialogTitle>Загрузить данные из файла?</DialogTitle>
+      <DialogActions>
+        <Button onClick={() => setOpenFileDialog(false)}>Отмена</Button>
+        <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
+      </DialogActions>
+    </Dialog>
+  );
 
 
   const CustomToolbar = () => {
@@ -293,7 +289,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
             delimiter: ';',
             utf8WithBom: true,
             disableToolbarButton: isLoading,
-            gridFilteredSortedRowIdsSelector: true
+            gridFilteredSortedRowIdsSelector: true,
           }}
           printOptions={{ disableToolbarButton: true }}
           //showQuickFilter={true}
@@ -301,11 +297,11 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         />
         <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
           Загрузить новые записи Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'new')}/>
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'new')} />
         </Button>
         <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
           Загрузить изменения Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'exists')}/>
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'exists')} />
         </Button>
       </GridToolbarContainer>
     );
@@ -378,6 +374,13 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         editMode={editMode}
         processRowUpdate={processRowUpdate}
+        isCellEditable={(params) => {
+          if (prefixForRowBlockedStyle === undefined) {
+            return true;
+          }
+
+          return !params.id.toString().startsWith(prefixForRowBlockedStyle);
+        }}
       />
       {!!snackbar && (
         <Snackbar open onClose={handleCloseSnackbar} autoHideDuration={6000}>

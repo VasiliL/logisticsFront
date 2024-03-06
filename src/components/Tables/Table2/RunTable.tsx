@@ -15,7 +15,6 @@ import { isNumber } from '@src/utils/number_utils';
 import {
   AutocompleteEditInputCell,
 } from '@src/components/Tables/Table2/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
-import { TextField } from '@mui/material';
 
 export const RunTable: FC = observer(() => {
   const {
@@ -118,19 +117,6 @@ export const RunTable: FC = observer(() => {
         sortable: false,
         editable: true,
         headerClassName: 'super-app-theme--header',
-        renderEditCell: (params) => {
-          const entry = list?.find(run => run.id === params.id as number);
-
-          if (entry || params.id.toString().startsWith('empty_')) {
-            return (
-              <TextField
-                value={params.value}
-              />
-            );
-          }
-
-          return;
-        },
       },
     ];
 
