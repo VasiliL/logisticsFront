@@ -12,7 +12,10 @@ import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { toStr } from '@src/utils/date_utils';
 import { RunTableFilter } from '@src/components/Tables/Table2/components/RunTableFilter/RunTableFilter';
 import { isNumber } from '@src/utils/number_utils';
-
+import {
+  AutocompleteEditInputCell,
+} from '@src/components/Tables/Table2/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
+import { TextField } from '@mui/material';
 
 export const RunTable: FC = observer(() => {
   const {
@@ -28,6 +31,7 @@ export const RunTable: FC = observer(() => {
     uploadExists,
     userSettings,
     invoiceList,
+    list,
   } = RunTableStore;
   const { isLoading, carIdList, carIdMap, carNumberMap } = DictStore;
   const [selectedRowId, setSelectedRowId] = useState('0');
@@ -69,18 +73,39 @@ export const RunTable: FC = observer(() => {
         description: 'Машина',
         flex: 2,
         minWidth: 200,
-        type: 'singleSelect',
         align: 'center',
         sortable: false,
         editable: true,
         headerClassName: 'super-app-theme--header',
-        valueOptions: ({ row }) => {
-          if (!row) {
-            // The row is not available when filtering this column
-            return carIdList;
+        valueFormatter: ({ id }) => {
+          if (id === undefined) return;
+          const entry = list?.find(run => run.id === id as number);
+          if (entry === undefined) return;
+          const car_id = entry?.car_id;
+          const plate_number = carIdMap.get(car_id)?.plate_number;
+
+          return plate_number || '';
+        },
+        renderEditCell: (params) => {
+          const entry = list?.find(run => run.id === params.id as number);
+          //const car_id = entry?.car_id;
+          const row_car_id = params.row.car;
+          //const plate_number = car_id ? carIdMap.get(car_id)?.plate_number || '' : '';
+          const row_plate_number = row_car_id ? carIdMap.get(row_car_id)?.plate_number : undefined;
+
+          if (entry || params.id.toString().startsWith('empty_')) {
+            return (
+              <AutocompleteEditInputCell
+                params={params}
+                value={row_plate_number}
+                options={carIdList}
+                freeSolo={false}
+                multiple={false}
+              />
+            );
           }
 
-          return carIdList;
+          return;
         },
       },
       {
@@ -89,16 +114,28 @@ export const RunTable: FC = observer(() => {
         description: 'Вес',
         flex: 4,
         minWidth: 50,
-        type: 'string',
         align: 'left',
         sortable: false,
         editable: true,
         headerClassName: 'super-app-theme--header',
+        renderEditCell: (params) => {
+          const entry = list?.find(run => run.id === params.id as number);
+
+          if (entry || params.id.toString().startsWith('empty_')) {
+            return (
+              <TextField
+                value={params.value}
+              />
+            );
+          }
+
+          return;
+        },
       },
     ];
 
     return cols;
-  }, [carIdList]);
+  }, [carIdList, carIdMap, list]);
 
   const rows = useMemo(() => {
     const result: object[] = [];

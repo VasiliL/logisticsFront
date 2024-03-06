@@ -5,26 +5,36 @@ import React, { FC } from 'react';
 interface IDialogProps {
   title: string;
   content: string;
+  btnTitle: string;
   handleApply: () => void;
-  handleCancel: () => void;
-  isOpen: boolean;
+  disabled?: boolean;
+  style?: React.CSSProperties;
 }
 
-export const AlertDialog: FC<IDialogProps> = (props: IDialogProps) => {
-  const { content, title, handleApply, handleCancel, isOpen } = props;
+export const AlertBtnDialog: FC<IDialogProps> = (props: IDialogProps) => {
+  const { content, title, btnTitle, handleApply, disabled, style } = props;
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    handleCancel();
+    setOpen(false);
   };
 
   const handleOk = () => {
+    handleClose();
     handleApply();
   };
 
   return (
     <>
+      <Button variant="contained" onClick={handleClickOpen} disabled={disabled} style={style}>
+        {btnTitle}
+      </Button>
       <Dialog
-        open={isOpen}
+        open={open}
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"

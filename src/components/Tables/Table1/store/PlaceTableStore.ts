@@ -82,7 +82,8 @@ class CPlaceTableStore {
   // список данных для клеток таблицы в виде car_id -> date_place -> place
   get entries() {
     const map = new Map<number, Map<string, IPlaceBL>>();
-    DictStore.cars?.forEach(car => {
+    // Вывод машин сделать с условием "owner": "РВ-ТАРИФ ООО"
+    DictStore.cars?.filter(car => car.owner === 'РВ-ТАРИФ ООО').forEach(car => {
       const itemMap = new Map<string, IPlaceBL>();
       this.list?.forEach(item => {
         if (item.car_id === car.id) {

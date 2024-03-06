@@ -105,7 +105,8 @@ export const PlaceTable: FC = observer(() => {
       } else if (!!entry && entry?.driver_id !== driver_id) {
         return await updatePlace({ ...entry, driver_id, fio });
       } else if (!entry && fio !== '') {
-        const plate_number = obj.car;
+        console.log(cars, obj.car);
+        const plate_number = cars.find(car => car.description === obj.car)?.plate_number || '';
         if (driver_id === undefined) throw new Error('Непредвиденная ошибка сервиса: driver_id == undefined');
 
         return await createPlace({ date_place, car_id, driver_id, fio, plate_number, id: 0 });

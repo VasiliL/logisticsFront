@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import { SingleDatePicker } from '@src/components/SingleDatePicker/SingleDatePicker';
-import { AlertDialog } from '@src/components/AlertDialog/AlertDialog';
+import { AlertBtnDialog } from '@src/components/AlertBtnDialog/AlertBtnDialog';
 
 interface IRunTableFilterProps {
   date?: Date | string;
@@ -38,7 +38,7 @@ export const RunTableFilter: FC<IRunTableFilterProps> = (props: IRunTableFilterP
       >
         Перестроить таблицу
       </Button>
-      <AlertDialog
+      <AlertBtnDialog
         btnTitle={'Удалить запись'}
         title={'Удаление записи'}
         content={'Вы уверены, что хотите удалить данную запись?'}

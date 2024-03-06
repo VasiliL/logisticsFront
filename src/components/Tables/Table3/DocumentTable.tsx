@@ -14,10 +14,21 @@ import { RunTableStore } from '@src/components/Tables/Table2/store/RunTableStore
 import { toStr } from '@src/utils/date_utils';
 
 export const DocumentTable: FC = observer(() => {
-  const { entries, isPendingList, init, isPendingActions, userSettings, reloadDocuments, updateRun } =
+  const {
+    entries,
+    isPendingList,
+    init,
+    isPendingActions,
+    userSettings,
+    reloadDocuments,
+    updateRun,
+    deleteRun,
+    createRun,
+  } =
     DocumentTableStore;
-  const { isLoading, carIdMap, driverIdMap } = DictStore;
+  const { isLoading, carIdMap, driverIdMap, driverIdList, driverFioMap, carIdList, carNumberMap } = DictStore;
   const [visibilityModel, setVisibilityModel] = useState(userSettings.tableVisibilityModel);
+  const [selectedRowId, setSelectedRowId] = useState('0');
 
   useEffect(() => {
     init();
@@ -86,6 +97,25 @@ export const DocumentTable: FC = observer(() => {
         description: 'Машина',
         flex: 1,
         minWidth: 100,
+        type: 'singleSelect',
+        align: 'center',
+        editable: true,
+        headerClassName: 'super-app-theme--header',
+        valueOptions: ({ row }) => {
+          if (!row) {
+            // The row is not available when filtering this column
+            return carIdList;
+          }
+
+          return carIdList;
+        },
+      },
+      {
+        field: 'owner',
+        headerName: 'Владелец',
+        description: 'Владелец',
+        flex: 1,
+        minWidth: 100,
         type: 'string',
         align: 'center',
         editable: false,
@@ -97,10 +127,18 @@ export const DocumentTable: FC = observer(() => {
         description: 'Водитель',
         flex: 2,
         minWidth: 100,
-        type: 'string',
+        type: 'singleSelect',
         align: 'center',
-        editable: false,
+        editable: true,
         headerClassName: 'super-app-theme--header',
+        valueOptions: ({ row }) => {
+          if (!row) {
+            // The row is not available when filtering this column
+            return driverIdList;
+          }
+
+          return driverIdList;
+        },
       },
       {
         field: 'date_arrival',
@@ -193,11 +231,11 @@ export const DocumentTable: FC = observer(() => {
         editable: true,
         headerClassName: 'super-app-theme--header',
         valueGetter: ({ value }) => value && new Date(value),
-      }
+      },
     ];
 
     return cols;
-  }, []);
+  }, [carIdList, driverIdList]);
 
   const columnShortModeModel = {
     route: false,
@@ -211,7 +249,8 @@ export const DocumentTable: FC = observer(() => {
     return Array.from(entries.values()).map(item => ({
       id: item.id,
       run_id: item.id,
-      car: carIdMap.get(item.car_id as number),
+      car: carIdMap.get(item.car_id as number)?.description,
+      owner: carIdMap.get(item.car_id as number)?.owner,
       driver: driverIdMap.get(item.driver_id as number),
       waybill: item.waybill,
       invoice_document: item.invoice_document,
@@ -228,6 +267,41 @@ export const DocumentTable: FC = observer(() => {
     }));
   }, [carIdMap, driverIdMap, entries]);
 
+  const handleCopyRowClick = (): void => {
+    const entry = entries.get(parseInt(selectedRowId));
+    if (entry === undefined) return;
+
+    createRun({
+      invoice_id: entry.invoice_id,
+      car_id: entry.car_id,
+      weight: entry.weight,
+      id: 0,
+      date_arrival: entry.date_arrival,
+      date_departure: entry.date_departure,
+      driver_id: entry.driver_id,
+      invoice_document: '',
+      waybill: '',
+      acc_date: '',
+      acc_number: '',
+      reg_date: '',
+      reg_number: '',
+      client: entry.client,
+      route: entry.route,
+      cargo: entry.cargo,
+    });
+
+    setSelectedRowId('0');
+  };
+
+  const handleRowClick = (id: string): void => {
+    setSelectedRowId(id);
+  };
+
+  const handleRowDelete = (): void => {
+    deleteRun(parseInt(selectedRowId));
+    setSelectedRowId('0');
+  };
+
   const handleUpdate = async (obj: any): Promise<boolean> => {
     const rowId = obj.run_id;
     const reg_number = obj.reg_number;
@@ -237,7 +311,10 @@ export const DocumentTable: FC = observer(() => {
     const waybill = obj.waybill;
     const weight = obj.weight;
     const invoice_document = obj.invoice_document;
-
+    const car_id = carNumberMap.get(obj.car?.toString() || '') || 0;
+    const driver_fio = obj.driver;
+    const driver_id = driver_fio !== undefined ? driverFioMap.get(driver_fio) || null : null;
+console.log(obj, driver_fio, driver_id, driverFioMap, driverFioMap.get(driver_fio));
     reg_date = reg_date === 'Invalid date' ? null : reg_date;
     acc_date = acc_date === 'Invalid date' ? null : acc_date;
 
@@ -245,7 +322,18 @@ export const DocumentTable: FC = observer(() => {
     const entry = entries.get(rowId);
     if (entry === undefined) return false;
 
-    return await updateRun({ ...entry, reg_number, reg_date, acc_number, acc_date, waybill, invoice_document, weight });
+    return await updateRun({
+      ...entry,
+      car_id,
+      driver_id,
+      reg_number,
+      reg_date,
+      acc_number,
+      acc_date,
+      waybill,
+      invoice_document,
+      weight,
+    });
   };
 
   const handleChangeMode = (mode: boolean): void => {
@@ -276,6 +364,10 @@ export const DocumentTable: FC = observer(() => {
         onDateChanged={userSettings.saveFilterDateRange}
         initialMode={userSettings.filterMode}
         handleChangeMode={handleChangeMode}
+        handleApplyDelete={handleRowDelete}
+        disableDeleteDialog={selectedRowId === '0'}
+        copyRowBtnDisabled={selectedRowId === '0'}
+        onCopyBtnClick={handleCopyRowClick}
       />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
@@ -284,7 +376,7 @@ export const DocumentTable: FC = observer(() => {
           editMode={'row'}
           checkboxSelection={false}
           hideFooterSelectedRowCount={true}
-          disableRowSelectionOnClick={true}
+          disableRowSelectionOnClick={false}
           rowHeight={30}
           disableColumnSelector={false}
           tablePageModel={userSettings.tablePageModel}
@@ -300,6 +392,7 @@ export const DocumentTable: FC = observer(() => {
           mutationUpdate={handleUpdate}
           uploadFileNew={handleUploadFileNew}
           uploadFileExist={handleUploadFileExist}
+          onRowClick={handleRowClick}
           exportFileName={'Внесение информации о выставлении рейса заказчику'}
           isLoading={isLoading || isPendingList}
         />

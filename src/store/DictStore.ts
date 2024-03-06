@@ -64,12 +64,17 @@ class CDictStore {
 
   // список водителей, отображаемые на пересецении в таблице
   get driverIdList() {
-    return [''].concat(this.drivers?.map(driver => driver.fio) || []);
+    return this.drivers?.map(driver => driver.fio) || [];
   }
 
   // список машин, отображаемые на пересецении в таблице
   get carIdList() {
-    return [''].concat(this.cars?.map(car => car.plate_number) || []);
+    return this.cars?.map(car => car.plate_number) || [];
+  }
+
+  // список машин, отображаемые в учейке списком с автокомплитом
+  get carIdOptions() {
+    return this.carIdList.map(id => ({ value: id, label: id }));
   }
 
   // список водителей в виде id -> fio
@@ -90,8 +95,8 @@ class CDictStore {
 
   // список машин в виде id -> plate_number
   get carIdMap() {
-    const map = new Map<number, string>();
-    this.cars?.forEach(car => map.set(car.id, car.plate_number));
+    const map = new Map<number, IDictCarBL>();
+    this.cars?.forEach(car => map.set(car.id, car));
 
     return map;
   }

@@ -122,13 +122,44 @@ class CDocumentTableStore {
         reg_number: dto.reg_number,
         waybill: dto.waybill,
         invoice_document: dto.invoice_document,
-        weight: dto.weight
+        weight: dto.weight,
+        driver_id: dto.driver_id,
+        car_id: dto.car_id,
       });
       if (result) {
         found.acc_date = dto.acc_date;
         found.acc_number = dto.acc_number;
         found.reg_date = dto.reg_date;
         found.reg_number = dto.reg_number;
+      }
+
+      return result;
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
+
+  public async createRun(dto: IRunBL): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+      const id = await RunApiService.createRun(dto);
+      if (id) {
+        dto.id = id;
+        this.list.push(dto);
+      }
+
+      return id !== undefined;
+    } finally {
+      this.isPendingActions = false;
+    }
+  }
+
+  public async deleteRun(id: number): Promise<boolean> {
+    try {
+      this.isPendingActions = true;
+      const result = await RunApiService.deleteRun(id);
+      if (result) {
+        this.list = this.list.filter(item => item.id !== id);
       }
 
       return result;
