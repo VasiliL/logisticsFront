@@ -142,6 +142,7 @@ class CRunTableStore {
         const found = this.list.find(item => item.id === dto.id);
         if (found) {
           found.invoice_id = dto.invoice_id;
+          found.car_id = dto.car_id;
         } else {
           throw new Error('Непредвиденная ошибка сервиса');
         }
@@ -158,7 +159,7 @@ class CRunTableStore {
       this.isPendingActions = true;
       const result = await RunApiService.deleteRun(id);
       if (result) {
-        this.list = this.list.filter(item => item.id === id);
+        this.list = this.list.filter(item => item.id !== id);
       }
 
       return result;

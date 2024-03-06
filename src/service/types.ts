@@ -21,6 +21,7 @@ export interface IDictCarDto {
   id: number;
   description: string;
   plate_number: string;
+  owner: string;
   vin: string;
   year: number;
   engine_hp: number;
