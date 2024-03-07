@@ -130,12 +130,12 @@ export const PlaceTable: FC = observer(() => {
         <Typography variant="h4">Расстановка водителей на машины</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-      <PlaceTableFilter
-        startDate={userSettings.dateStart}
-        endDate={userSettings.dateEnd}
-        onReloadBtnClick={reloadPlaces}
-        onDateChanged={userSettings.saveFilterDateRange}
-      />
+        <PlaceTableFilter
+          startDate={userSettings.dateStart}
+          endDate={userSettings.dateEnd}
+          onReloadBtnClick={reloadPlaces}
+          onDateChanged={userSettings.saveFilterDateRange}
+        />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}

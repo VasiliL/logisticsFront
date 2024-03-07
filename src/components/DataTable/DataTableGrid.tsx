@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   GridColDef,
   GridColumnVisibilityModel,
@@ -26,8 +26,11 @@ import Snackbar from '@mui/material/Snackbar/Snackbar';
 import { Alert } from '@mui/lab';
 import { AlertProps, Dialog, DialogActions, DialogTitle } from '@mui/material';
 
-import { StyledDataGrid, Transition, useStyles, VisuallyHiddenInput } from './StyledDataGrid';
+import {
+  AutocompleteEditInputCell,
+} from '@src/components/Tables/Table2/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
 
+import { StyledDataGrid, Transition, useStyles, VisuallyHiddenInput } from './StyledDataGrid';
 
 interface IDataTableGridProps {
   // table data
@@ -51,6 +54,9 @@ interface IDataTableGridProps {
   disableRowSelectionOnClick?: boolean;
   // table editing
   editMode?: GridEditMode;
+  onRowEditStopForFields?: string[];
+  optionsForEditField?: Map<string, string[]>;
+  optionForEditFieldEmpty?: string;
   // events
   mutationUpdate: (obj: any) => Promise<boolean>;
   onRowClick?: (id: string) => void;
@@ -75,6 +81,7 @@ const checkIsTheSameRow = (newRow: GridRowModel, oldRow: GridRowModel) => {
 export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProps) => {
   const apiRef = useGridApiRef();
   const noButtonRef = React.useRef<HTMLButtonElement>(null);
+  const yesButtonRef = React.useRef<HTMLButtonElement>(null);
   const classes = useStyles();
   const {
     rows: initialRows,
@@ -104,6 +111,9 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     exportHeaders,
     prefixForRowBlockedStyle,
     isLoading,
+    onRowEditStopForFields,
+    optionsForEditField,
+    optionForEditFieldEmpty,
   } = props;
 
   const [openFileDialog, setOpenFileDialog] = useState(false);
@@ -127,6 +137,41 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       }),
     [],
   );
+
+  const columns = useMemo(() => {
+    return initialColumns.map(col => {
+      if (col.type === 'singleSelect') {
+        return {
+          ...col, type: undefined, renderEditCell: (params) => {
+            if (prefixForRowBlockedStyle === undefined || optionsForEditField === undefined) {
+              return;
+            }
+
+            const options = optionsForEditField?.get(params.field);
+            const isBlockedRow = params.id.toString().startsWith(prefixForRowBlockedStyle);
+
+            if (!isBlockedRow && options !== undefined) {
+              return (
+                <AutocompleteEditInputCell
+                  params={params}
+                  value={params.formattedValue}
+                  options={options}
+                  freeSolo={false}
+                  multiple={false}
+                  apiRef={apiRef}
+                  emptyOption={optionForEditFieldEmpty}
+                />
+              );
+            }
+
+            return;
+          },
+        };
+      }
+
+      return col;
+    });
+  }, [apiRef, initialColumns, optionForEditFieldEmpty, optionsForEditField, prefixForRowBlockedStyle]);
 
   useEffect(() => {
     apiRef.current.setPaginationModel(tablePageModel);
@@ -188,6 +233,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       // the cell triggers "No". Instead, we manually focus the "No" button once
       // the dialog is fully open.
       // noButtonRef.current?.focus();
+      yesButtonRef.current?.focus();
     };
 
     if (!promiseArguments) {
@@ -214,7 +260,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
           <Button ref={noButtonRef} onClick={handleNo}>
             Отмена
           </Button>
-          <Button autoFocus onClick={handleYes}>
+          <Button ref={yesButtonRef} onClick={handleYes}>
             Да
           </Button>
         </DialogActions>
@@ -313,7 +359,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       <AlertDialog />
       <StyledDataGrid
         rows={initialRows}
-        columns={initialColumns}
+        columns={columns}
         initialState={{
           pagination: {
             paginationModel: tablePageModel,
@@ -380,6 +426,11 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
           }
 
           return !params.id.toString().startsWith(prefixForRowBlockedStyle);
+        }}
+        onRowEditStop={(params, event) => {
+          if (params.field && onRowEditStopForFields?.includes(params.field) && params.reason === 'enterKeyDown') {
+            event.defaultMuiPrevented = true;
+          }
         }}
       />
       {!!snackbar && (

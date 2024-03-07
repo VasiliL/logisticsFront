@@ -12,9 +12,6 @@ import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
 import { toStr } from '@src/utils/date_utils';
 import { RunTableFilter } from '@src/components/Tables/Table2/components/RunTableFilter/RunTableFilter';
 import { isNumber } from '@src/utils/number_utils';
-import {
-  AutocompleteEditInputCell,
-} from '@src/components/Tables/Table2/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
 
 export const RunTable: FC = observer(() => {
   const {
@@ -72,6 +69,7 @@ export const RunTable: FC = observer(() => {
         description: 'Машина',
         flex: 2,
         minWidth: 200,
+        type: 'singleSelect',
         align: 'center',
         sortable: false,
         editable: true,
@@ -84,27 +82,6 @@ export const RunTable: FC = observer(() => {
           const plate_number = carIdMap.get(car_id)?.plate_number;
 
           return plate_number || '';
-        },
-        renderEditCell: (params) => {
-          const entry = list?.find(run => run.id === params.id as number);
-          //const car_id = entry?.car_id;
-          const row_car_id = params.row.car;
-          //const plate_number = car_id ? carIdMap.get(car_id)?.plate_number || '' : '';
-          const row_plate_number = row_car_id ? carIdMap.get(row_car_id)?.plate_number : undefined;
-
-          if (entry || params.id.toString().startsWith('empty_')) {
-            return (
-              <AutocompleteEditInputCell
-                params={params}
-                value={row_plate_number}
-                options={carIdList}
-                freeSolo={false}
-                multiple={false}
-              />
-            );
-          }
-
-          return;
         },
       },
       {
@@ -121,7 +98,7 @@ export const RunTable: FC = observer(() => {
     ];
 
     return cols;
-  }, [carIdList, carIdMap, list]);
+  }, [carIdMap, list]);
 
   const rows = useMemo(() => {
     const result: object[] = [];
@@ -176,7 +153,7 @@ export const RunTable: FC = observer(() => {
 
     const entry = entries.get(invoice);
     const run = entry?.find(r => r.id.toString() == rowId);
-    const car_id = carNumberMap.get(obj.car?.toString() || '') || 0;
+    const car_id = carNumberMap.get(obj.car?.toString() || '') || run?.car_id || 0;
     const weight = obj.weight?.toString() || 0;
 
     if (!run && rowId.startsWith('empty_')) {
@@ -214,6 +191,13 @@ export const RunTable: FC = observer(() => {
   const handleUploadFileExist = async (file: File): Promise<boolean> => {
     return await uploadExists(file);
   };
+
+  const options = useMemo(() => {
+    const res = new Map<string, string[]>();
+    res.set('car', carIdList);
+
+    return res;
+  }, [carIdList]);
 
   return (
     <>
@@ -254,6 +238,8 @@ export const RunTable: FC = observer(() => {
           exportFileName={'Расстановка машин на маршруты'}
           exportHeaders={['invoice', 'car', 'weight']}
           prefixForRowBlockedStyle={'invoice_'}
+          optionsForEditField={options}
+          optionForEditFieldEmpty={'создать рейсы'}
           uploadFileNew={handleUploadFileNew}
           uploadFileExist={handleUploadFileExist}
         />
