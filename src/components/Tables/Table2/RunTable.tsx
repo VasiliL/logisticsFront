@@ -29,7 +29,7 @@ export const RunTable: FC = observer(() => {
     invoiceList,
     list,
   } = RunTableStore;
-  const { isLoading, carIdList, carIdMap, carNumberMap } = DictStore;
+  const { isLoading, carNumberList, carIdMap, carNumberMap } = DictStore;
   const [selectedRowId, setSelectedRowId] = useState('0');
 
   useEffect(() => {
@@ -194,10 +194,10 @@ export const RunTable: FC = observer(() => {
 
   const options = useMemo(() => {
     const res = new Map<string, string[]>();
-    res.set('car', carIdList);
+    res.set('car', carNumberList);
 
     return res;
-  }, [carIdList]);
+  }, [carNumberList]);
 
   return (
     <>

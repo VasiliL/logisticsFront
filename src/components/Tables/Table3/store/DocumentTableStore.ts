@@ -127,10 +127,13 @@ class CDocumentTableStore {
         car_id: dto.car_id,
       });
       if (result) {
-        found.acc_date = dto.acc_date;
-        found.acc_number = dto.acc_number;
-        found.reg_date = dto.reg_date;
-        found.reg_number = dto.reg_number;
+        this.list = [...this.list.filter(item => item.id !== dto.id), {
+          ...found,
+          acc_date: dto.acc_date,
+          acc_number: dto.acc_number,
+          reg_date: dto.reg_date,
+          reg_number: dto.reg_number,
+        }];
       }
 
       return result;
@@ -145,7 +148,7 @@ class CDocumentTableStore {
       const id = await RunApiService.createRun(dto);
       if (id) {
         dto.id = id;
-        this.list.push(dto);
+        this.list = [ ...this.list, dto ];
       }
 
       return id !== undefined;

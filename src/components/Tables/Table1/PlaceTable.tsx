@@ -44,7 +44,7 @@ export const PlaceTable: FC = observer(() => {
         align: 'left',
         sortable: true,
         editable: false,
-        filterable: true
+        filterable: true,
       },
     ];
 
@@ -61,19 +61,14 @@ export const PlaceTable: FC = observer(() => {
           sortable: true,
           editable: true,
           filterable: true,
-          valueOptions: ({ row }) => {
-            if (!row) {
-              // The row is not available when filtering this column
-              return driverIdList;
-            }
-
-            return driverIdList;
+          valueFormatter: ({ value }) => {
+            return value || '';
           },
         };
       }) || [];
 
     return cols.concat(dateCols);
-  }, [dates, driverIdList]);
+  }, [dates]);
 
   const rows = useMemo(() => {
     return (
@@ -124,18 +119,27 @@ export const PlaceTable: FC = observer(() => {
     return await uploadExists(file);
   };
 
+  const options = useMemo(() => {
+    const res = new Map<string, string[]>();
+    dates.forEach(date => {
+      res.set(date, driverIdList);
+    });
+
+    return res;
+  }, [dates, driverIdList]);
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
         <Typography variant="h4">Расстановка водителей на машины</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-        <PlaceTableFilter
-          startDate={userSettings.dateStart}
-          endDate={userSettings.dateEnd}
-          onReloadBtnClick={reloadPlaces}
-          onDateChanged={userSettings.saveFilterDateRange}
-        />
+      <PlaceTableFilter
+        startDate={userSettings.dateStart}
+        endDate={userSettings.dateEnd}
+        onReloadBtnClick={reloadPlaces}
+        onDateChanged={userSettings.saveFilterDateRange}
+      />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}
@@ -154,6 +158,7 @@ export const PlaceTable: FC = observer(() => {
           saveTableSortData={userSettings.saveTableSortData}
           saveTableFilterData={userSettings.saveTableFilterData}
           saveTableDensityMode={userSettings.saveTableDensityMode}
+          optionsForEditField={options}
           mutationUpdate={handleUpdate}
           uploadFileNew={handleUploadFileNew}
           uploadFileExist={handleUploadFileExist}

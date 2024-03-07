@@ -110,7 +110,7 @@ class CPlaceTableStore {
       const id = await PlaceApiService.createPlace(dto);
       if (id) {
         dto.id = id;
-        this.list.push(dto);
+        this.list = [ ...this.list, dto ];
       }
 
       return true;
@@ -126,7 +126,10 @@ class CPlaceTableStore {
       if (result) {
         const found = this.list.find(item => item.id === dto.id);
         if (found) {
-          found.driver_id = dto.driver_id;
+          this.list = [...this.list.filter(item => item.id !== dto.id), {
+            ...found,
+            driver_id: dto.driver_id,
+          }];
         } else {
           throw new Error('Непредвиденная ошибка сервиса');
         }

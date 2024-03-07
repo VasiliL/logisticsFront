@@ -24,9 +24,20 @@ export const DocumentTable: FC = observer(() => {
     updateRun,
     deleteRun,
     createRun,
+    list,
   } =
     DocumentTableStore;
-  const { isLoading, carIdMap, driverIdMap, driverIdList, driverFioMap, carIdList, carNumberMap } = DictStore;
+  const {
+    isLoading,
+    carIdMap,
+    driverIdMap,
+    driverIdList,
+    driverFioMap,
+    carNumberList,
+    carNumberMap,
+    carDescriptionList,
+    carDescriptionMap,
+  } = DictStore;
   const [visibilityModel, setVisibilityModel] = useState(userSettings.tableVisibilityModel);
   const [selectedRowId, setSelectedRowId] = useState('0');
 
@@ -101,13 +112,14 @@ export const DocumentTable: FC = observer(() => {
         align: 'center',
         editable: true,
         headerClassName: 'super-app-theme--header',
-        valueOptions: ({ row }) => {
-          if (!row) {
-            // The row is not available when filtering this column
-            return carIdList;
-          }
+        valueFormatter: ({ id }) => {
+          if (id === undefined) return;
+          const entry = list?.find(run => run.id === id as number);
+          if (entry === undefined) return;
+          const car_id = entry?.car_id;
+          const plate_number = carIdMap.get(car_id)?.description;
 
-          return carIdList;
+          return plate_number || '';
         },
       },
       {
@@ -131,13 +143,8 @@ export const DocumentTable: FC = observer(() => {
         align: 'center',
         editable: true,
         headerClassName: 'super-app-theme--header',
-        valueOptions: ({ row }) => {
-          if (!row) {
-            // The row is not available when filtering this column
-            return driverIdList;
-          }
-
-          return driverIdList;
+        valueFormatter: ({ value }) => {
+          return value || '';
         },
       },
       {
@@ -235,7 +242,7 @@ export const DocumentTable: FC = observer(() => {
     ];
 
     return cols;
-  }, [carIdList, driverIdList]);
+  }, [carNumberList, driverIdList]);
 
   const columnShortModeModel = {
     route: false,
@@ -304,17 +311,16 @@ export const DocumentTable: FC = observer(() => {
 
   const handleUpdate = async (obj: any): Promise<boolean> => {
     const rowId = obj.run_id;
-    const reg_number = obj.reg_number;
-    const acc_number = obj.acc_number;
+    const reg_number = obj.reg_number || '';
+    const acc_number = obj.acc_number || '';
     let reg_date = obj.reg_date !== null ? toStr(obj.reg_date) : obj.reg_date;
     let acc_date = obj.acc_date !== null ? toStr(obj.acc_date) : obj.acc_date;
     const waybill = obj.waybill;
     const weight = obj.weight;
     const invoice_document = obj.invoice_document;
-    const car_id = carNumberMap.get(obj.car?.toString() || '') || 0;
+    const car_id = carDescriptionMap.get(obj.car?.toString() || '') || 0;
     const driver_fio = obj.driver;
     const driver_id = driver_fio !== undefined ? driverFioMap.get(driver_fio) || null : null;
-console.log(obj, driver_fio, driver_id, driverFioMap, driverFioMap.get(driver_fio));
     reg_date = reg_date === 'Invalid date' ? null : reg_date;
     acc_date = acc_date === 'Invalid date' ? null : acc_date;
 
@@ -350,6 +356,14 @@ console.log(obj, driver_fio, driver_id, driverFioMap, driverFioMap.get(driver_fi
   const handleUploadFileExist = async (file: File): Promise<boolean> => {
     return await RunTableStore.uploadExists(file);
   };
+
+  const options = useMemo(() => {
+    const res = new Map<string, string[]>();
+    res.set('car', carDescriptionList);
+    res.set('driver', driverIdList);
+
+    return res;
+  }, [carDescriptionList, driverIdList]);
 
   return (
     <>
@@ -393,6 +407,7 @@ console.log(obj, driver_fio, driver_id, driverFioMap, driverFioMap.get(driver_fi
           uploadFileNew={handleUploadFileNew}
           uploadFileExist={handleUploadFileExist}
           onRowClick={handleRowClick}
+          optionsForEditField={options}
           exportFileName={'Внесение информации о выставлении рейса заказчику'}
           isLoading={isLoading || isPendingList}
         />

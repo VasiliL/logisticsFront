@@ -143,12 +143,13 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       if (col.type === 'singleSelect') {
         return {
           ...col, type: undefined, renderEditCell: (params) => {
-            if (prefixForRowBlockedStyle === undefined || optionsForEditField === undefined) {
+            if (optionsForEditField === undefined) {
               return;
             }
 
             const options = optionsForEditField?.get(params.field);
-            const isBlockedRow = params.id.toString().startsWith(prefixForRowBlockedStyle);
+            const isBlockedRow = prefixForRowBlockedStyle !== undefined &&
+              params.id.toString().startsWith(prefixForRowBlockedStyle);
 
             if (!isBlockedRow && options !== undefined) {
               return (

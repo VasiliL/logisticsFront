@@ -19,7 +19,7 @@ class CDictStore {
         driverIdList: computed,
         driverFioMap: computed,
         driverIdMap: computed,
-        carIdList: computed,
+        carNumberList: computed,
         carIdMap: computed,
         carNumberMap: computed,
       },
@@ -64,17 +64,17 @@ class CDictStore {
 
   // список водителей, отображаемые на пересецении в таблице
   get driverIdList() {
-    return this.drivers?.map(driver => driver.fio) || [];
+    return [''].concat(this.drivers?.map(driver => driver.fio) || []);
   }
 
   // список машин, отображаемые на пересецении в таблице
-  get carIdList() {
-    return this.cars?.map(car => car.plate_number) || [];
+  get carNumberList() {
+    return [...new Set(this.cars?.map(car => car.plate_number) || [])];
   }
 
-  // список машин, отображаемые в учейке списком с автокомплитом
-  get carIdOptions() {
-    return this.carIdList.map(id => ({ value: id, label: id }));
+  // список машин с описанием, отображаемые на пересецении в таблице
+  get carDescriptionList() {
+    return [...new Set(this.cars?.map(car => car.description) || [])];
   }
 
   // список водителей в виде id -> fio
@@ -105,6 +105,14 @@ class CDictStore {
   get carNumberMap() {
     const map = new Map<string, number>();
     this.cars?.forEach(car => map.set(car.plate_number, car.id));
+
+    return map;
+  }
+
+  // список машин с описанием в виде plate_number -> id
+  get carDescriptionMap() {
+    const map = new Map<string, number>();
+    this.cars?.forEach(car => map.set(car.description, car.id));
 
     return map;
   }
