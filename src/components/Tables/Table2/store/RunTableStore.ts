@@ -139,16 +139,7 @@ class CRunTableStore {
       this.isPendingActions = true;
       const result = await RunApiService.updateRun(dto);
       if (result) {
-        const found = this.list.find(item => item.id === dto.id);
-        if (found) {
-          this.list = [...this.list.filter(item => item.id !== dto.id), {
-            ...found,
-            invoice_id: dto.invoice_id,
-            car_id: dto.car_id,
-          }];
-        } else {
-          throw new Error('Непредвиденная ошибка сервиса');
-        }
+        this.list = this.list.map(item => item.id === dto.id ? dto : item);
       }
 
       return result;

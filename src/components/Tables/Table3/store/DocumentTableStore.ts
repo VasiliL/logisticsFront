@@ -127,13 +127,7 @@ class CDocumentTableStore {
         car_id: dto.car_id,
       });
       if (result) {
-        this.list = [...this.list.filter(item => item.id !== dto.id), {
-          ...found,
-          acc_date: dto.acc_date,
-          acc_number: dto.acc_number,
-          reg_date: dto.reg_date,
-          reg_number: dto.reg_number,
-        }];
+        this.list = this.list.map(item => item.id === dto.id ? dto : item);
       }
 
       return result;

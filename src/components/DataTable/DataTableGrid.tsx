@@ -140,37 +140,37 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
 
   const columns = useMemo(() => {
     return initialColumns.map(col => {
-      if (col.type === 'singleSelect') {
-        return {
-          ...col, type: undefined, renderEditCell: (params) => {
-            if (optionsForEditField === undefined) {
-              return;
-            }
-
-            const options = optionsForEditField?.get(params.field);
-            const isBlockedRow = prefixForRowBlockedStyle !== undefined &&
-              params.id.toString().startsWith(prefixForRowBlockedStyle);
-
-            if (!isBlockedRow && options !== undefined) {
-              return (
-                <AutocompleteEditInputCell
-                  params={params}
-                  value={params.formattedValue}
-                  options={options}
-                  freeSolo={false}
-                  multiple={false}
-                  apiRef={apiRef}
-                  emptyOption={optionForEditFieldEmpty}
-                />
-              );
-            }
-
-            return;
-          },
-        };
+      if (col.type !== 'singleSelect') {
+        return col;
       }
 
-      return col;
+      return {
+        ...col, type: undefined, renderEditCell: (params) => {
+          if (optionsForEditField === undefined) {
+            return;
+          }
+
+          const options = optionsForEditField?.get(params.field);
+          const isBlockedRow = prefixForRowBlockedStyle !== undefined &&
+            params.id.toString().startsWith(prefixForRowBlockedStyle);
+
+          if (!isBlockedRow && options !== undefined) {
+            return (
+              <AutocompleteEditInputCell
+                params={params}
+                value={params.formattedValue}
+                options={options}
+                freeSolo={false}
+                multiple={false}
+                apiRef={apiRef}
+                emptyOption={optionForEditFieldEmpty}
+              />
+            );
+          }
+
+          return;
+        },
+      };
     });
   }, [apiRef, initialColumns, optionForEditFieldEmpty, optionsForEditField, prefixForRowBlockedStyle]);
 
