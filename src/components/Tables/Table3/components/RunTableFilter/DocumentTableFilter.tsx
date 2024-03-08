@@ -1,6 +1,7 @@
 import React, { FC, useEffect } from 'react';
 import Button from '@mui/material/Button';
-import { ToggleButton, ToggleButtonGroup } from '@mui/lab';
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { RangeDatePicker } from '@src/components/RangeDatePicker/RangeDatePicker';
 import { DateRange } from 'mui-daterange-picker';
 import { AlertDialog } from '@src/components/AlertDialog/AlertDialog';

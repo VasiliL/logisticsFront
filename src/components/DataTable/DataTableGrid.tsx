@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   GridColDef,
   GridColumnVisibilityModel,
@@ -26,8 +26,11 @@ import Snackbar from '@mui/material/Snackbar/Snackbar';
 import { Alert } from '@mui/lab';
 import { AlertProps, Dialog, DialogActions, DialogTitle } from '@mui/material';
 
-import { StyledDataGrid, Transition, useStyles, VisuallyHiddenInput } from './StyledDataGrid';
+import {
+  AutocompleteEditInputCell,
+} from '@src/components/Tables/Table2/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
 
+import { StyledDataGrid, Transition, useStyles, VisuallyHiddenInput } from './StyledDataGrid';
 
 interface IDataTableGridProps {
   // table data
@@ -51,6 +54,9 @@ interface IDataTableGridProps {
   disableRowSelectionOnClick?: boolean;
   // table editing
   editMode?: GridEditMode;
+  onRowEditStopForFields?: string[];
+  optionsForEditField?: Map<string, string[]>;
+  optionForEditFieldEmpty?: string;
   // events
   mutationUpdate: (obj: any) => Promise<boolean>;
   onRowClick?: (id: string) => void;
@@ -75,6 +81,7 @@ const checkIsTheSameRow = (newRow: GridRowModel, oldRow: GridRowModel) => {
 export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProps) => {
   const apiRef = useGridApiRef();
   const noButtonRef = React.useRef<HTMLButtonElement>(null);
+  const yesButtonRef = React.useRef<HTMLButtonElement>(null);
   const classes = useStyles();
   const {
     rows: initialRows,
@@ -104,6 +111,9 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     exportHeaders,
     prefixForRowBlockedStyle,
     isLoading,
+    onRowEditStopForFields,
+    optionsForEditField,
+    optionForEditFieldEmpty,
   } = props;
 
   const [openFileDialog, setOpenFileDialog] = useState(false);
@@ -127,6 +137,42 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       }),
     [],
   );
+
+  const columns = useMemo(() => {
+    return initialColumns.map(col => {
+      if (col.type !== 'singleSelect') {
+        return col;
+      }
+
+      return {
+        ...col, type: undefined, renderEditCell: (params) => {
+          if (optionsForEditField === undefined) {
+            return;
+          }
+
+          const options = optionsForEditField?.get(params.field);
+          const isBlockedRow = prefixForRowBlockedStyle !== undefined &&
+            params.id.toString().startsWith(prefixForRowBlockedStyle);
+
+          if (!isBlockedRow && options !== undefined) {
+            return (
+              <AutocompleteEditInputCell
+                params={params}
+                value={params.formattedValue}
+                options={options}
+                freeSolo={false}
+                multiple={false}
+                apiRef={apiRef}
+                emptyOption={optionForEditFieldEmpty}
+              />
+            );
+          }
+
+          return;
+        },
+      };
+    });
+  }, [apiRef, initialColumns, optionForEditFieldEmpty, optionsForEditField, prefixForRowBlockedStyle]);
 
   useEffect(() => {
     apiRef.current.setPaginationModel(tablePageModel);
@@ -188,6 +234,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       // the cell triggers "No". Instead, we manually focus the "No" button once
       // the dialog is fully open.
       // noButtonRef.current?.focus();
+      yesButtonRef.current?.focus();
     };
 
     if (!promiseArguments) {
@@ -214,7 +261,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
           <Button ref={noButtonRef} onClick={handleNo}>
             Отмена
           </Button>
-          <Button autoFocus onClick={handleYes}>
+          <Button ref={yesButtonRef} onClick={handleYes}>
             Да
           </Button>
         </DialogActions>
@@ -228,8 +275,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     if (file && !isUploading) {
       try {
         setSelectedFile(file); // Save the selected file
-      }
-      finally {
+      } finally {
         setFileStatus(source); // Save the source of the file
         setOpenFileDialog(true); // Open the dialog
       }
@@ -244,16 +290,13 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         if (uploadFileNew && fileStatus === 'new') {
           const uploadResult = await uploadFileNew(selectedFile);
           console.log('Upload successful:', uploadResult);
-        }
-        else if (uploadFileExist && fileStatus === 'exists') {
+        } else if (uploadFileExist && fileStatus === 'exists') {
           const uploadResult = await uploadFileExist(selectedFile);
           console.log('Upload successful:', uploadResult);
-        }
-        else {
+        } else {
           throw new Error('Неизвестный источник файла');
         }
-      }
-      finally {
+      } finally {
         setIsUploading(false); // Re-enable the button
         setSelectedFile(null);
         setFileStatus(null);
@@ -262,21 +305,21 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
   };
 
   const AlertDialog = () => (
-      <Dialog
-        maxWidth="xs"
-        open={openFileDialog && !isUploading}
-        onClose={() => setOpenFileDialog(false)}
-        TransitionComponent={Transition}
-        keepMounted
-        disableRestoreFocus
-      >
-        <DialogTitle>Загрузить данные из файла?</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setOpenFileDialog(false)}>Отмена</Button>
-          <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
-        </DialogActions>
-      </Dialog>
-    );
+    <Dialog
+      maxWidth="xs"
+      open={openFileDialog && !isUploading}
+      onClose={() => setOpenFileDialog(false)}
+      TransitionComponent={Transition}
+      keepMounted
+      disableRestoreFocus
+    >
+      <DialogTitle>Загрузить данные из файла?</DialogTitle>
+      <DialogActions>
+        <Button onClick={() => setOpenFileDialog(false)}>Отмена</Button>
+        <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
+      </DialogActions>
+    </Dialog>
+  );
 
 
   const CustomToolbar = () => {
@@ -293,7 +336,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
             delimiter: ';',
             utf8WithBom: true,
             disableToolbarButton: isLoading,
-            gridFilteredSortedRowIdsSelector: true
+            gridFilteredSortedRowIdsSelector: true,
           }}
           printOptions={{ disableToolbarButton: true }}
           //showQuickFilter={true}
@@ -301,11 +344,11 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         />
         <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
           Загрузить новые записи Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'new')}/>
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'new')} />
         </Button>
         <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
           Загрузить изменения Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'exists')}/>
+          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'exists')} />
         </Button>
       </GridToolbarContainer>
     );
@@ -317,7 +360,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
       <AlertDialog />
       <StyledDataGrid
         rows={initialRows}
-        columns={initialColumns}
+        columns={columns}
         initialState={{
           pagination: {
             paginationModel: tablePageModel,
@@ -378,6 +421,18 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         editMode={editMode}
         processRowUpdate={processRowUpdate}
+        isCellEditable={(params) => {
+          if (prefixForRowBlockedStyle === undefined) {
+            return true;
+          }
+
+          return !params.id.toString().startsWith(prefixForRowBlockedStyle);
+        }}
+        onRowEditStop={(params, event) => {
+          if (params.field && onRowEditStopForFields?.includes(params.field) && params.reason === 'enterKeyDown') {
+            event.defaultMuiPrevented = true;
+          }
+        }}
       />
       {!!snackbar && (
         <Snackbar open onClose={handleCloseSnackbar} autoHideDuration={6000}>

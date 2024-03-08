@@ -44,7 +44,7 @@ export const PlaceTable: FC = observer(() => {
         align: 'left',
         sortable: true,
         editable: false,
-        filterable: true
+        filterable: true,
       },
     ];
 
@@ -61,23 +61,18 @@ export const PlaceTable: FC = observer(() => {
           sortable: true,
           editable: true,
           filterable: true,
-          valueOptions: ({ row }) => {
-            if (!row) {
-              // The row is not available when filtering this column
-              return driverIdList;
-            }
-
-            return driverIdList;
+          valueFormatter: ({ value }) => {
+            return value || '';
           },
         };
       }) || [];
 
     return cols.concat(dateCols);
-  }, [dates, driverIdList]);
+  }, [dates]);
 
   const rows = useMemo(() => {
     return (
-      cars?.map(car => {
+      cars?.filter(car => car.owner === 'РВ-ТАРИФ ООО').map(car => {
         const row = {};
         row['id'] = car.id;
         row['car'] = car.description;
@@ -105,7 +100,6 @@ export const PlaceTable: FC = observer(() => {
       } else if (!!entry && entry?.driver_id !== driver_id) {
         return await updatePlace({ ...entry, driver_id, fio });
       } else if (!entry && fio !== '') {
-        console.log(cars, obj.car);
         const plate_number = cars.find(car => car.description === obj.car)?.plate_number || '';
         if (driver_id === undefined) throw new Error('Непредвиденная ошибка сервиса: driver_id == undefined');
 
@@ -125,18 +119,27 @@ export const PlaceTable: FC = observer(() => {
     return await uploadExists(file);
   };
 
+  const options = useMemo(() => {
+    const res = new Map<string, string[]>();
+    dates.forEach(date => {
+      res.set(date, driverIdList);
+    });
+
+    return res;
+  }, [dates, driverIdList]);
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
         <Typography variant="h4">Расстановка водителей на машины</Typography>
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
-        <PlaceTableFilter
-          startDate={userSettings.dateStart}
-          endDate={userSettings.dateEnd}
-          onReloadBtnClick={reloadPlaces}
-          onDateChanged={userSettings.saveFilterDateRange}
-        />
+      <PlaceTableFilter
+        startDate={userSettings.dateStart}
+        endDate={userSettings.dateEnd}
+        onReloadBtnClick={reloadPlaces}
+        onDateChanged={userSettings.saveFilterDateRange}
+      />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
           columns={columns}
@@ -155,6 +158,7 @@ export const PlaceTable: FC = observer(() => {
           saveTableSortData={userSettings.saveTableSortData}
           saveTableFilterData={userSettings.saveTableFilterData}
           saveTableDensityMode={userSettings.saveTableDensityMode}
+          optionsForEditField={options}
           mutationUpdate={handleUpdate}
           uploadFileNew={handleUploadFileNew}
           uploadFileExist={handleUploadFileExist}
