@@ -110,7 +110,7 @@ class CPlaceTableStore {
       const id = await PlaceApiService.createPlace(dto);
       if (id) {
         dto.id = id;
-        this.list = [ ...this.list, dto ];
+        this.list = [...(this.list ? this.list : []), dto];
       }
 
       return true;

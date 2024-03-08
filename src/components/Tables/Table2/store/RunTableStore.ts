@@ -125,7 +125,7 @@ class CRunTableStore {
       const id = await RunApiService.createRun(dto);
       if (id) {
         dto.id = id;
-        this.list = [...this.list, dto];
+        this.list = [...(this.list ? this.list : []), dto];
       }
 
       return id !== undefined;
@@ -196,6 +196,7 @@ class CRunTableStore {
       this.isPendingActions = false;
     }
   }
+
   // #endregion
 }
 
