@@ -107,7 +107,7 @@ export const DocumentTable: FC = observer(() => {
         headerName: 'Машина',
         description: 'Машина',
         flex: 1,
-        minWidth: 100,
+        minWidth: 200,
         type: 'singleSelect',
         align: 'center',
         editable: true,
