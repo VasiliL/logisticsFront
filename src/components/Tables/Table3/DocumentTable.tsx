@@ -148,26 +148,26 @@ export const DocumentTable: FC = observer(() => {
         },
       },
       {
-        field: 'date_arrival',
+        field: 'date_departure',
         headerName: 'Дата погрузки',
         description: 'Дата погрузки',
         flex: 1,
         minWidth: 100,
         type: 'date',
         align: 'center',
-        editable: false,
+        editable: true,
         headerClassName: 'super-app-theme--header',
         valueGetter: ({ value }) => value && new Date(value),
       },
       {
-        field: 'date_departure',
+        field: 'date_arrival',
         headerName: 'Дата выгрузки',
         description: 'Дата выгрузки',
         flex: 1,
         minWidth: 100,
         type: 'date',
         align: 'center',
-        editable: false,
+        editable: true,
         headerClassName: 'super-app-theme--header',
         valueGetter: ({ value }) => value && new Date(value),
       },
@@ -288,9 +288,9 @@ export const DocumentTable: FC = observer(() => {
       driver_id: entry.driver_id,
       invoice_document: '',
       waybill: '',
-      acc_date: '',
+      acc_date: null,
       acc_number: '',
-      reg_date: '',
+      reg_date: null,
       reg_number: '',
       client: entry.client,
       route: entry.route,
@@ -315,6 +315,8 @@ export const DocumentTable: FC = observer(() => {
     const acc_number = obj.acc_number || '';
     let reg_date = obj.reg_date !== null ? toStr(obj.reg_date) : obj.reg_date;
     let acc_date = obj.acc_date !== null ? toStr(obj.acc_date) : obj.acc_date;
+    let date_arrival = obj.date_arrival !== null ? toStr(obj.date_arrival) : obj.date_arrival;
+    let date_departure = obj.date_departure !== null ? toStr(obj.date_departure) : obj.date_departure;
     const waybill = obj.waybill;
     const weight = obj.weight;
     const invoice_document = obj.invoice_document;
@@ -323,6 +325,8 @@ export const DocumentTable: FC = observer(() => {
     const driver_id = driver_fio !== undefined ? driverFioMap.get(driver_fio) || null : null;
     reg_date = reg_date === 'Invalid date' ? null : reg_date;
     acc_date = acc_date === 'Invalid date' ? null : acc_date;
+    date_arrival = date_arrival === 'Invalid date' ? null : date_arrival;
+    date_departure = date_departure === 'Invalid date' ? null : date_departure;
 
     if (rowId === undefined) return false;
     const entry = entries.get(rowId);
@@ -334,6 +338,8 @@ export const DocumentTable: FC = observer(() => {
       driver_id,
       reg_number,
       reg_date,
+      date_arrival,
+      date_departure,
       acc_number,
       acc_date,
       waybill,

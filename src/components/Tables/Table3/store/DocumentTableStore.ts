@@ -118,6 +118,8 @@ class CDocumentTableStore {
         ...found,
         acc_date: dto.acc_date,
         reg_date: dto.reg_date,
+        date_arrival: dto.date_arrival,
+        date_departure: dto.date_departure,
         acc_number: dto.acc_number,
         reg_number: dto.reg_number,
         waybill: dto.waybill,

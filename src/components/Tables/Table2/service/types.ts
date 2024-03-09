@@ -25,11 +25,11 @@ export interface IRunDto {
   waybill: string;
   weight: number;
   date_departure: string;
-  date_arrival: string;
+  date_arrival: string | null;
   reg_number: string;
-  reg_date: string;
+  reg_date: string | null;
   acc_number: string;
-  acc_date: string;
+  acc_date: string | null;
   client: string;
   route: string;
   cargo: string;
