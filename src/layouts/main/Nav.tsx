@@ -82,6 +82,31 @@ export const Nav = (props: INavProps) => {
 const NavItem = ({ item }) => {
   const pathname = usePathname();
   const active = item.path === pathname;
+  if (item.external) {
+    return (
+      <ListItemButton
+        component="a"
+        href={item.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        sx={{
+          minHeight: 44,
+          borderRadius: 0.75,
+          typography: 'body2',
+          color: 'text.secondary',
+          textTransform: 'none',
+          fontWeight: 'fontWeightMedium',
+        }}
+      >
+        <Box component="span" sx={{ width: 24, height: 24, mr: 2 }}>
+          {item.icon}
+        </Box>
+
+        <Box component="span">{item.title} </Box>
+      </ListItemButton>
+    );
+
+  }
 
   return (
     <ListItemButton

@@ -34,4 +34,10 @@ export const ConfigNavigation = [
     path: '/documents',
     icon: icon('table'),
   },
+  {
+    title: 'Metabase',
+    url: '/metabase',
+    icon: icon('table'),
+    external: true,
+  },
 ];
