@@ -281,7 +281,7 @@ export const DocumentTable: FC = observer(() => {
     createRun({
       invoice_id: entry.invoice_id,
       car_id: entry.car_id,
-      weight: entry.weight,
+      weight: 0,
       id: 0,
       date_arrival: entry.date_arrival,
       date_departure: entry.date_departure,
