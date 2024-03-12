@@ -62,9 +62,16 @@ class CDictStore {
 
   // #region business logic (BL)
 
-  // список водителей, отображаемые на пересецении в таблице
+  // список водителей, отображаемые на пересечении в таблице
   get driverIdList() {
     return [''].concat(this.drivers?.map(driver => driver.fio) || []);
+  }
+
+  // список водителей, отображаемые на пересечении в таблице, только для РВ-ТАРИФ
+  get driverIdListMyCompany() {
+    return [''].concat(this.drivers
+      ?.filter(driver => driver.company === 'РВ-ТАРИФ ООО')
+      .map(driver => driver.fio) || []);
   }
 
   // список машин, отображаемые на пересецении в таблице

@@ -26,7 +26,7 @@ export const PlaceTable: FC = observer(() => {
     dates,
     userSettings,
   } = PlaceTableStore;
-  const { isLoading, cars, driverIdList, driverFioMap } = DictStore;
+  const { isLoading, cars, driverIdListMyCompany, driverFioMap } = DictStore;
 
   useEffect(() => {
     init();
@@ -122,11 +122,11 @@ export const PlaceTable: FC = observer(() => {
   const options = useMemo(() => {
     const res = new Map<string, string[]>();
     dates.forEach(date => {
-      res.set(date, driverIdList);
+      res.set(date, driverIdListMyCompany);
     });
 
     return res;
-  }, [dates, driverIdList]);
+  }, [dates, driverIdListMyCompany]);
 
   return (
     <>

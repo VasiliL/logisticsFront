@@ -34,10 +34,8 @@ export interface IDictCarDto {
 export interface IDictDriverDto {
   id: number;
   fio: string;
-  code: string;
-  position: string;
-  inn: string;
-  snils: string;
+  company: string | null;
+  position: string | null;
 }
 
 export interface IDataInvoiceDto {
