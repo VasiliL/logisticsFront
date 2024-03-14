@@ -9,7 +9,7 @@ import { PageProgressBar } from '@src/components/PageProgressBar/PageProgressBar
 import { RunTableStore } from '@src/components/Tables/Table2/store/RunTableStore';
 import { GridColDef } from '@mui/x-data-grid';
 import { DataTableGrid } from '@src/components/DataTable/DataTableGrid';
-import { toStr } from '@src/utils/date_utils';
+import { nowStr, toStr } from '@src/utils/date_utils';
 import { RunTableFilter } from '@src/components/Tables/Table2/components/RunTableFilter/RunTableFilter';
 import { isNumber } from '@src/utils/number_utils';
 
@@ -28,6 +28,8 @@ export const RunTable: FC = observer(() => {
     userSettings,
     invoiceList,
     list,
+    filterDate,
+    saveFilterDate,
   } = RunTableStore;
   const { isLoading, carNumberList, carIdMap, carNumberMap } = DictStore;
   const [selectedRowId, setSelectedRowId] = useState('0');
@@ -157,7 +159,7 @@ export const RunTable: FC = observer(() => {
     const weight = obj.weight?.toString() || 0;
 
     if (!run && rowId.startsWith('empty_')) {
-      const defaultDate = toStr(userSettings.filterDate);
+      const defaultDate = toStr(filterDate) || nowStr();
 
       return await createRun({
         invoice_id: invoice,
@@ -199,6 +201,11 @@ export const RunTable: FC = observer(() => {
     return res;
   }, [carNumberList]);
 
+  const saveNewFilterDate = (value: Date) => {
+    userSettings.saveFilterDate(value);
+    saveFilterDate(value);
+  };
+
   return (
     <>
       <Stack direction="row" alignItems="center" mb={5}>
@@ -206,12 +213,12 @@ export const RunTable: FC = observer(() => {
         <ProgressBar isLoading={isPendingActions} />
       </Stack>
       <RunTableFilter
-        date={userSettings.filterDate}
+        date={filterDate}
         label={'Выбрать дату'}
         onReloadBtnClick={reloadRuns}
         onDeleteBtnClick={handleRowDeleteClick}
         deleteBtnDisabled={isDeleteBtnDisabled}
-        onDateChanged={userSettings.saveFilterDate}
+        onDateChanged={saveNewFilterDate}
       />
       <PageProgressBar isLoading={isLoading || isPendingList}>
         <DataTableGrid
