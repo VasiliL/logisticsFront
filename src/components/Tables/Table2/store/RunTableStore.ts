@@ -24,11 +24,14 @@ class CRunTableStore {
   // Стор с настройками пользователя
   private _settingsStore: SettingsStore | undefined;
   private _userSettings: IUserSettings | undefined;
+  // Данные для фильтрации
+  private _filterDate: Date = new Date();
 
   constructor() {
     makeAutoObservable(this, { entries: computed, invoiceIdMap: computed, invoiceList: computed }, { autoBind: true });
     this.settingsStore = new SettingsStore('table_2_');
     this.userSettings = this.settingsStore.currentSettings;
+    this.filterDate = this.settingsStore.currentSettings.filterDate;
   }
 
   async init(): Promise<void> {
@@ -86,6 +89,14 @@ class CRunTableStore {
     this._isPendingActions = value;
   }
 
+  get filterDate(): Date {
+    return this._filterDate;
+  }
+
+  set filterDate(value: Date) {
+    this._filterDate = value;
+  }
+
   // #endregion
 
   // #region business logic (BL)
@@ -117,6 +128,10 @@ class CRunTableStore {
   // список заявок
   get invoiceList() {
     return this.invoices || [];
+  }
+
+  public saveFilterDate(value: Date): void {
+    this.filterDate = value;
   }
 
   public async createRun(dto: IRunBL): Promise<boolean> {
