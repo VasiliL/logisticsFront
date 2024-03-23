@@ -10,7 +10,7 @@ export const Router = () => (
   <Routes>
     <Route path={''} element={<Outlet />}>
       <Route index element={<Home />} />
-      <Route path={'places'} element={<PlaceListPage />} />
+      {/*<Route path={'places'} element={<PlaceListPage />} />*/}
       <Route path={'runs'} element={<RunListPage />} />
       <Route path={'documents'} element={<DocumentListPage />} />
     </Route>

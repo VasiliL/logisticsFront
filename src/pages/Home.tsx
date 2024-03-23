@@ -12,9 +12,9 @@ export const Home: FC = () => {
         <Typography variant="h4">Главная страница</Typography>
       </Stack>
       <ListItemText>
-        <Link to={'places'} key={'places'}>
-          <p>Расстановка водителей на машины</p>
-        </Link>
+        {/*<Link to={'places'} key={'places'}>*/}
+        {/*  <p>Расстановка водителей на машины</p>*/}
+        {/*</Link>*/}
         <Link to={'runs'} key={'runs'}>
           <p>Расстановка машин на маршруты</p>
         </Link>

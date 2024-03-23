@@ -19,11 +19,11 @@ export const ConfigNavigation = [
     path: '',
     icon: icon('home'),
   },
-  {
-    title: 'Расстановка водителей на машины',
-    path: '/places',
-    icon: icon('table'),
-  },
+  // {
+  //   title: 'Расстановка водителей на машины',
+  //   path: '/places',
+  //   icon: icon('table'),
+  // },
   {
     title: 'Расстановка машин на маршруты',
     path: '/runs',
