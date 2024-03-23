@@ -192,21 +192,21 @@ class CRunTableStore {
     }
   }
 
-  public async uploadNew(file: File): Promise<boolean> {
+  public async uploadRunDocs(file: File): Promise<boolean> {
     try {
       this.isPendingActions = true;
 
-      return await RunApiService.uploadNew(file);
+      return await RunApiService.uploadRunDocs(file);
     } finally {
       this.isPendingActions = false;
     }
   }
 
-  public async uploadExists(file: File): Promise<boolean> {
+  public async uploadClientDocs(file: File): Promise<boolean> {
     try {
       this.isPendingActions = true;
 
-      return await RunApiService.uploadExists(file);
+      return await RunApiService.uploadClientDocs(file);
     } finally {
       this.isPendingActions = false;
     }

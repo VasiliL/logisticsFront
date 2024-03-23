@@ -19,8 +19,8 @@ export const PlaceTable: FC = observer(() => {
     deletePlace,
     updatePlace,
     createPlace,
-    uploadNew,
-    uploadExists,
+    // uploadNew,
+    // uploadExists,
     isPendingActions,
     reloadPlaces,
     dates,
@@ -111,13 +111,13 @@ export const PlaceTable: FC = observer(() => {
   };
 
   //Обрабатываем загрузку файла
-  const handleUploadFileNew = async (file: File): Promise<boolean> => {
-    return await uploadNew(file);
-  };
-
-  const handleUploadFileExist = async (file: File): Promise<boolean> => {
-    return await uploadExists(file);
-  };
+  // const handleUploadFileNew = async (file: File): Promise<boolean> => {
+  //   return await uploadNew(file);
+  // };
+  //
+  // const handleUploadFileExist = async (file: File): Promise<boolean> => {
+  //   return await uploadExists(file);
+  // };
 
   const options = useMemo(() => {
     const res = new Map<string, string[]>();
@@ -160,8 +160,8 @@ export const PlaceTable: FC = observer(() => {
           saveTableDensityMode={userSettings.saveTableDensityMode}
           optionsForEditField={options}
           mutationUpdate={handleUpdate}
-          uploadFileNew={handleUploadFileNew}
-          uploadFileExist={handleUploadFileExist}
+          // uploadFileNew={handleUploadFileNew}
+          // uploadFileExist={handleUploadFileExist}
         />
       </PageProgressBar>
     </>

@@ -355,12 +355,12 @@ export const DocumentTable: FC = observer(() => {
     setVisibilityModel(model);
   };
 
-  const handleUploadFileNew = async (file: File): Promise<boolean> => {
-    return await RunTableStore.uploadNew(file);
+  const handleUploadFileRunDocs = async (file: File): Promise<boolean> => {
+    return await RunTableStore.uploadRunDocs(file);
   };
 
-  const handleUploadFileExist = async (file: File): Promise<boolean> => {
-    return await RunTableStore.uploadExists(file);
+  const handleUploadFileClientDocs = async (file: File): Promise<boolean> => {
+    return await RunTableStore.uploadClientDocs(file);
   };
 
   const options = useMemo(() => {
@@ -410,8 +410,8 @@ export const DocumentTable: FC = observer(() => {
           saveTableFilterData={userSettings.saveTableFilterData}
           saveTableDensityMode={userSettings.saveTableDensityMode}
           mutationUpdate={handleUpdate}
-          uploadFileNew={handleUploadFileNew}
-          uploadFileExist={handleUploadFileExist}
+          uploadFileRunDocs={handleUploadFileRunDocs}
+          uploadFileClientDocs={handleUploadFileClientDocs}
           onRowClick={handleRowClick}
           optionsForEditField={options}
           exportFileName={'Внесение информации о выставлении рейса заказчику'}

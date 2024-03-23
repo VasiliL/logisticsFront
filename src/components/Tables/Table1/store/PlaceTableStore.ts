@@ -163,25 +163,25 @@ class CPlaceTableStore {
     }
   }
 
-  public async uploadNew(file: File): Promise<boolean> {
-    try {
-      this.isPendingActions = true;
-
-      return await PlaceApiService.uploadNew(file);
-    } finally {
-      this.isPendingActions = false;
-    }
-  }
-
-  public async uploadExists(file: File): Promise<boolean> {
-    try {
-      this.isPendingActions = true;
-
-      return await PlaceApiService.uploadExists(file);
-    } finally {
-      this.isPendingActions = false;
-    }
-  }
+  // public async uploadNew(file: File): Promise<boolean> {
+  //   try {
+  //     this.isPendingActions = true;
+  //
+  //     return await PlaceApiService.uploadNew(file);
+  //   } finally {
+  //     this.isPendingActions = false;
+  //   }
+  // }
+  //
+  // public async uploadExists(file: File): Promise<boolean> {
+  //   try {
+  //     this.isPendingActions = true;
+  //
+  //     return await PlaceApiService.uploadExists(file);
+  //   } finally {
+  //     this.isPendingActions = false;
+  //   }
+  // }
 
   // #endregion
 }

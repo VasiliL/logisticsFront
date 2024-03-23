@@ -11,9 +11,9 @@ export interface IRunApiService {
 
   uploadFile(method: string, file: File): Promise<boolean>;
 
-  uploadNew(file: File): Promise<boolean>;
+  uploadRunDocs(file: File): Promise<boolean>;
 
-  uploadExists(file: File): Promise<boolean>;
+  uploadClientDocs(file: File): Promise<boolean>;
 }
 
 export interface IRunDto {

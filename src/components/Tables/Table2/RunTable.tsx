@@ -23,8 +23,8 @@ export const RunTable: FC = observer(() => {
     createRun,
     isPendingActions,
     reloadRuns,
-    uploadNew,
-    uploadExists,
+    // uploadNew,
+    // uploadExists,
     userSettings,
     invoiceList,
     list,
@@ -186,13 +186,13 @@ export const RunTable: FC = observer(() => {
     throw new Error('Непредвиденная ошибка сервиса: Не найдены записи для обновления');
   };
 
-  const handleUploadFileNew = async (file: File): Promise<boolean> => {
-    return await uploadNew(file);
-  };
-
-  const handleUploadFileExist = async (file: File): Promise<boolean> => {
-    return await uploadExists(file);
-  };
+  // const handleUploadFileRunDocs = async (file: File): Promise<boolean> => {
+  //   return await uploadNew(file);
+  // };
+  //
+  // const handleUploadFileClientDocs = async (file: File): Promise<boolean> => {
+  //   return await uploadExists(file);
+  // };
 
   const options = useMemo(() => {
     const res = new Map<string, string[]>();
@@ -247,8 +247,8 @@ export const RunTable: FC = observer(() => {
           prefixForRowBlockedStyle={'invoice_'}
           optionsForEditField={options}
           optionForEditFieldEmpty={'создать рейсы'}
-          uploadFileNew={handleUploadFileNew}
-          uploadFileExist={handleUploadFileExist}
+          // uploadFileRunDocs={handleUploadFileRunDocs}
+          // uploadFileClientDocs={handleUploadFileClientDocs}
         />
       </PageProgressBar>
     </>

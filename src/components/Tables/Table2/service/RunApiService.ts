@@ -54,12 +54,12 @@ class CRunApiService implements IRunApiService {
 
     return result as boolean;
   }
-  async uploadFile(method: string, file: File): Promise<boolean> {
+  async uploadFile(doc_type: string, file: File): Promise<boolean> {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const response = await fetch(`${this.HOST_URL}/upload_xlsx`, {
-        method: method,
+      const response = await fetch(`/api/documents/${doc_type}/upload_xlsx`, {
+        method: 'PUT',
         body: formData
       });
 
@@ -81,15 +81,15 @@ class CRunApiService implements IRunApiService {
   /**
    * Upload xlsx files: new
    */
-  async uploadNew(file: File): Promise<boolean> {
-    return await this.uploadFile('POST', file);
+  async uploadRunDocs(file: File): Promise<boolean> {
+    return await this.uploadFile('income_docs', file);
   }
 
   /**
    * Upload xlsx files: exists
    */
-  async uploadExists(file: File): Promise<boolean> {
-    return await this.uploadFile('PUT', file);
+  async uploadClientDocs(file: File): Promise<boolean> {
+    return await this.uploadFile('outcome_docs', file);
   }
 }
 
