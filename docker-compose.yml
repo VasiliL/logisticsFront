@@ -28,5 +28,17 @@ services:
     networks:
       - node_network
 
+  fastapi:
+    container_name: fastapi
+    restart: unless-stopped
+    build:
+      context: ./backend
+    ports:
+      - 8000:${FASTAPI_PORT}
+    volumes:
+      - ./backend:/usr/src/app
+    networks:
+      - node_network
+
 networks:
   node_network:
