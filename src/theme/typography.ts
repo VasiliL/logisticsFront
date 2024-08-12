@@ -22,14 +22,15 @@ export function responsiveFontSizes({ sm, md, lg }) {
   };
 }
 
-export const primaryFont = 'Oswald';
-export const secondaryFont = 'Oswald';
+export const primaryFont = 'Roboto';
+export const secondaryFont = 'Roboto';
 
 // ----------------------------------------------------------------------
 
 export const typography = {
-  fontFamily: primaryFont,
+  fontFamily: `${primaryFont}, sans-serif`,
   fontSecondaryFamily: secondaryFont,
+  fontStyle: 'normal',
   fontWeightRegular: 200,
   fontWeightMedium: 300,
   fontWeightSemiBold: 500,
@@ -54,7 +55,7 @@ export const typography = {
     ...responsiveFontSizes({ sm: 26, md: 30, lg: 32 }),
   },
   h4: {
-    fontWeight: 500,
+    fontWeight: 700,
     lineHeight: 1.5,
     fontSize: pxToRem(20),
     ...responsiveFontSizes({ sm: 20, md: 24, lg: 24 }),

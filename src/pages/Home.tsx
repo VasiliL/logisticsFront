@@ -12,14 +12,20 @@ export const Home: FC = () => {
         <Typography variant="h4">Главная страница</Typography>
       </Stack>
       <ListItemText>
-        <Link to={'places'} key={'places'}>
-          <p>Расстановка водителей на машины</p>
+        <Link to={'create_runs'} key={'create_runs'}>
+          <Typography>Расстановка машин на маршруты</Typography>
         </Link>
-        <Link to={'runs'} key={'runs'}>
-          <p>Расстановка машин на маршруты</p>
+        <Link to={'edit_runs'} key={'edit_runs'}>
+          <Typography>Внесение информации о выставлении рейса заказчику</Typography>
         </Link>
-        <Link to={'documents'} key={'documents'}>
-          <p>Внесение информации о выставлении рейса заказчику</p>
+        <Link to={'transport_data'} key={'transport_data'}>
+          <Typography>Внесение транспортных данных</Typography>
+        </Link>
+        <Link to={'client_documents'} key={'client_documents'}>
+          <Typography>Выставление документов заказчику</Typography>
+        </Link>
+        <Link to={'user_event_log'} key={'user_event_log'}>
+          <Typography>Журнал событий</Typography>
         </Link>
       </ListItemText>
     </Container>

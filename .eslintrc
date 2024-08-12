@@ -185,5 +185,6 @@
         "omitLastInOneLineBlock": true
       }
     ]
-  }
+  },
+  "ignorePatterns": ["sonar-scanner.ts"]
 }

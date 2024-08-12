@@ -3,7 +3,7 @@ import { Action } from '@src/store/action';
 import { IDictApiService, IDictCarDto, IDictDriverDto, IDataInvoiceDto, IDayRqDto } from './types';
 
 class CDictApiService implements IDictApiService {
-  private readonly HOST_URL = '/api';
+  private readonly HOST_URL = '/api/v2';
 
   private GetDictCarsAction = new Action<unknown, IDictCarDto[]>({ isInterrupted: true });
   private GetDictDriversAction = new Action<unknown, IDictDriverDto[]>({ isInterrupted: true });
@@ -13,7 +13,7 @@ class CDictApiService implements IDictApiService {
    * Получить список справочников Cars
    */
   async getDictCars(): Promise<IDictCarDto[]> {
-    const result = await this.GetDictCarsAction.callAction(`${this.HOST_URL}/cars`, 'GET');
+    const result = await this.GetDictCarsAction.callAction(`${this.HOST_URL}/cars/get_all`, 'GET');
 
     return result as IDictCarDto[];
   }
@@ -22,7 +22,7 @@ class CDictApiService implements IDictApiService {
    * Получить список справочников Drivers
    */
   async getDictDrivers(): Promise<IDictDriverDto[]> {
-    const result = await this.GetDictDriversAction.callAction(`${this.HOST_URL}/drivers`, 'GET');
+    const result = await this.GetDictDriversAction.callAction(`${this.HOST_URL}/drivers/get_all`, 'GET');
 
     return result as IDictDriverDto[];
   }
@@ -31,7 +31,7 @@ class CDictApiService implements IDictApiService {
    * Получить список справочников Invoices
    */
   async getDictInvoices(dto: IDayRqDto): Promise<IDataInvoiceDto[]> {
-    const result = await this.GetDictInvoicesAction.callAction(`${this.HOST_URL}/invoices?day=${dto.day}`, 'GET');
+    const result = await this.GetDictInvoicesAction.callAction(`${this.HOST_URL}/invoices/get_actual?date_in=${dto.day}`, 'GET');
 
     return result as IDataInvoiceDto[];
   }

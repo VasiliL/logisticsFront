@@ -4,6 +4,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DATE_FORMAT } from '@src/utils/date_utils';
+import { ruRU } from '@mui/x-date-pickers/locales';
 
 interface IDatePickerProps {
   date?: Date | string;
@@ -23,7 +24,11 @@ export const SingleDatePicker: FC<IDatePickerProps> = (props: IDatePickerProps) 
   };
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    <LocalizationProvider
+      dateAdapter={AdapterDayjs}
+      adapterLocale={'ru'}
+      localeText={ruRU.components.MuiLocalizationProvider.defaultProps.localeText}
+    >
       <DatePicker
         label={label}
         value={value}

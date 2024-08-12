@@ -1,87 +1,109 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  GRID_AGGREGATION_FUNCTIONS,
+  GridCellParams,
+  GridCellSelectionModel,
   GridColDef,
+  GridColumnResizeParams,
   GridColumnVisibilityModel,
   GridDensity,
   GridEventListener,
   GridFilterModel,
   GridPaginationModel,
   GridRowModel,
+  GridRowSelectionModel,
   GridSortModel,
-  GridToolbarColumnsButton,
-  GridToolbarContainer,
-  GridToolbarDensitySelector,
-  GridToolbarExport,
-  GridToolbarFilterButton,
+  GridValidRowModel,
   ruRU,
   useGridApiRef,
-} from '@mui/x-data-grid';
+  useKeepGroupedColumnsHidden,
+} from '@mui/x-data-grid-premium';
 import { GridEditMode } from '@mui/x-data-grid/models/gridEditRowModel';
-import Button from '@mui/material/Button';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-
 
 import Snackbar from '@mui/material/Snackbar/Snackbar';
 import { Alert } from '@mui/lab';
-import { AlertProps, Dialog, DialogActions, DialogTitle } from '@mui/material';
+import { AlertProps } from '@mui/material';
 
 import {
   AutocompleteEditInputCell,
-} from '@src/components/Tables/Table2/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
+} from '@src/components/DataTable/components/AutocompleteEditInputCell/AutocompleteEditInputCell';
 
-import { StyledDataGrid, Transition, useStyles, VisuallyHiddenInput } from './StyledDataGrid';
+import { GridAggregationModel } from '@mui/x-data-grid-premium/hooks/features/aggregation/gridAggregationInterfaces';
+
+import { autosizeOptions, checkboxColumn, checkIsTheSameRow } from '@src/components/DataTable/utils/DataTableGridUtils';
+import { CustomToolbar } from '@src/components/DataTable/components/CustomToolbar/CustomToolbar';
+
+import { GridGroupingColDefOverride } from '@mui/x-data-grid-pro/models/gridGroupingColDefOverride';
+
+import type { GridAggregationFunction } from '@mui/x-data-grid-premium/hooks/features/aggregation';
+
+import { StyledDataGrid, useStyles } from './StyledDataGrid';
+
+export interface ICustomToolbarButtonProps {
+  text: string;
+  disabled?: boolean;
+  hideIcon?: boolean;
+  onClick: () => void;
+}
 
 interface IDataTableGridProps {
   // table data
   columns: GridColDef[];
   rows: object[];
+  isSimpleTable?: boolean;
   rowHeight?: number;
+  // table user settings from local storage
+  tablePageModel?: GridPaginationModel;
+  tableFilterModel?: GridFilterModel;
+  tableSortModel?: GridSortModel;
+  tableDensityMode?: GridDensity;
+  tableVisibilityModel?: GridColumnVisibilityModel;
+  tableColumnsWidth?: Map<string, number>;
+  tableColumnsOrder?: string[];
+  saveTablePageData?: (data: GridPaginationModel) => void;
+  saveTableVisibilityData?: (data: GridColumnVisibilityModel) => void;
+  saveTableSortData?: (data: GridSortModel) => void;
+  saveTableFilterData?: (data: GridFilterModel) => void;
+  saveTableDensityMode?: (data: GridDensity) => void;
+  saveTableColumnsWidth?: (data: Map<string, number>) => void;
+  saveTableColumnsOrder?: (data: string[]) => void;
   // table settings
-  tablePageModel: GridPaginationModel;
-  tableFilterModel: GridFilterModel;
-  tableSortModel: GridSortModel;
-  tableDensityMode: GridDensity;
-  tableVisibilityModel: GridColumnVisibilityModel;
-  saveTablePageData: (data: GridPaginationModel) => void;
-  saveTableVisibilityData: (data: GridColumnVisibilityModel) => void;
-  saveTableSortData: (data: GridSortModel) => void;
-  saveTableFilterData: (data: GridFilterModel) => void;
-  saveTableDensityMode: (data: GridDensity) => void;
   checkboxSelection?: boolean;
   hideFooterSelectedRowCount?: boolean;
-  disableColumnSelector?: boolean;
-  disableRowSelectionOnClick?: boolean;
   // table editing
   editMode?: GridEditMode;
   onRowEditStopForFields?: string[];
   optionsForEditField?: Map<string, string[]>;
-  optionForEditFieldEmpty?: string;
+  // column grouping
+  rowGroupingColumnMode?: 'single' | 'multiple';
+  rowGroupingFields?: string[];
+  notHideGroupingDuplicateColumn?: boolean;
+  // aggregation
+  aggregationFields?: GridAggregationModel;
+  aggregationFunctions?: GridAggregationFunction;
   // events
-  mutationUpdate: (obj: any) => Promise<boolean>;
+  mutationUpdate?: (obj: any) => Promise<boolean>;
   onRowClick?: (id: string) => void;
-  notUpdateRowAfterMutate?: boolean;
   isLoading?: boolean;
-  uploadFileNew?: (file: File) => Promise<boolean>;
-  uploadFileExist?: (file: File) => Promise<boolean>;
+  onChangeRowSelectionModel?: (obj: GridRowSelectionModel) => void;
+  onChangeCellSelectionModel?: (obj: GridCellSelectionModel) => void;
+  onCellKeyDownEvent?: (key: string) => void;
   // export
   exportFileName?: string;
   exportHeaders?: string[];
-  // style
-  prefixForRowBlockedStyle?: string;
+  // custom buttons
+  toolbarCustomButtons?: ICustomToolbarButtonProps[];
+  // styling
+  cellsBackgroundColors?: Map<string, Map<string, number>>;
+  onRowEditStart?: GridEventListener<'rowEditStart'>;
+  onRowEditStop?: GridEventListener<'rowEditStop'>;
+  onCellEditStart?: GridEventListener<'cellEditStart'>;
+  groupingColDef?: GridGroupingColDefOverride;
 }
-
-const checkIsTheSameRow = (newRow: GridRowModel, oldRow: GridRowModel) => {
-  const obj1Keys = Object.keys(newRow);
-  const obj2Keys = Object.keys(oldRow);
-
-  return obj1Keys.length === obj2Keys.length && obj1Keys.every(key => newRow[key] === oldRow[key]);
-};
 
 export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProps) => {
   const apiRef = useGridApiRef();
-  const noButtonRef = React.useRef<HTMLButtonElement>(null);
-  const yesButtonRef = React.useRef<HTMLButtonElement>(null);
   const classes = useStyles();
   const {
     rows: initialRows,
@@ -91,37 +113,45 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     tableSortModel,
     tableVisibilityModel,
     tableDensityMode,
+    tableColumnsWidth,
+    tableColumnsOrder,
     saveTablePageData,
     saveTableVisibilityData,
     saveTableSortData,
     saveTableFilterData,
     saveTableDensityMode,
+    saveTableColumnsWidth,
+    saveTableColumnsOrder,
     checkboxSelection,
     rowHeight,
     hideFooterSelectedRowCount,
-    disableColumnSelector,
-    disableRowSelectionOnClick,
-    notUpdateRowAfterMutate,
     editMode,
     mutationUpdate,
-    uploadFileNew,
-    uploadFileExist,
     onRowClick,
     exportFileName,
     exportHeaders,
-    prefixForRowBlockedStyle,
     isLoading,
     onRowEditStopForFields,
     optionsForEditField,
-    optionForEditFieldEmpty,
+    rowGroupingColumnMode,
+    rowGroupingFields,
+    aggregationFields,
+    toolbarCustomButtons,
+    onChangeRowSelectionModel,
+    onChangeCellSelectionModel,
+    cellsBackgroundColors,
+    onCellKeyDownEvent,
+    isSimpleTable,
+    onRowEditStart,
+    onRowEditStop,
+    groupingColDef,
+    aggregationFunctions,
+    notHideGroupingDuplicateColumn,
+    onCellEditStart,
   } = props;
 
-  const [openFileDialog, setOpenFileDialog] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileStatus, setFileStatus] = useState<string | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [promiseArguments, setPromiseArguments] = useState<any>(null);
   const [snackbar, setSnackbar] = useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
+  const [editModeActive, setEditModeActive] = React.useState<boolean>(false);
 
   const handleCloseSnackbar = () => setSnackbar(null);
 
@@ -129,66 +159,128 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     (newRow: GridRowModel, oldRow: GridRowModel) =>
       new Promise<GridRowModel>((resolve, reject) => {
         const isMutation = !checkIsTheSameRow(newRow, oldRow);
-        if (isMutation) {
-          setPromiseArguments({ resolve, reject, newRow, oldRow });
+        if (mutationUpdate !== undefined && isMutation) {
+          (async function() {
+            try {
+              if (await mutationUpdate(newRow)) {
+                resolve(newRow);
+              } else {
+                throw new Error('Сервер вернул неуспешный результат');
+              }
+            } catch (error) {
+              const text = `Ошибка во время обновления записи: ${error}`;
+              console.error(text);
+              setSnackbar({ children: text, severity: 'error' });
+              reject(oldRow);
+            }
+          })();
         } else {
           resolve(oldRow);
         }
       }),
-    [],
+    [mutationUpdate],
   );
 
+  const initialState = useKeepGroupedColumnsHidden({
+    apiRef,
+    initialState: {
+      pagination: {
+        paginationModel: tablePageModel,
+      },
+      filter: {
+        filterModel: tableFilterModel,
+      },
+      sorting: {
+        sortModel: tableSortModel,
+      },
+      columns: {
+        columnVisibilityModel: tableVisibilityModel,
+        orderedFields: tableColumnsOrder,
+      },
+      rowGrouping: {
+        model: rowGroupingFields,
+      },
+      aggregation: {
+        model: aggregationFields,
+      },
+    },
+  });
+
   const columns = useMemo(() => {
-    return initialColumns.map(col => {
-      if (col.type !== 'singleSelect') {
-        return col;
-      }
+    return [
+      checkboxColumn(apiRef),
+      ...initialColumns.map(col => {
+        // устанавливаем сохраненные юзером ширины колонок
+        col.width = tableColumnsWidth?.get(col.field);
+        if (tableColumnsWidth?.has(col.field)) {
+          col.flex = undefined;
+        }
 
-      return {
-        ...col, type: undefined, renderEditCell: (params) => {
-          if (optionsForEditField === undefined) {
-            return;
-          }
+        if (col.type !== 'singleSelect') {
+          return col;
+        }
 
-          const options = optionsForEditField?.get(params.field);
-          const isBlockedRow = prefixForRowBlockedStyle !== undefined &&
-            params.id.toString().startsWith(prefixForRowBlockedStyle);
+        return {
+          ...col,
+          type: undefined,
+          renderEditCell: params => {
+            if (optionsForEditField === undefined) {
+              return;
+            }
 
-          if (!isBlockedRow && options !== undefined) {
-            return (
-              <AutocompleteEditInputCell
-                params={params}
-                value={params.formattedValue}
-                options={options}
-                freeSolo={false}
-                multiple={false}
-                apiRef={apiRef}
-                emptyOption={optionForEditFieldEmpty}
-              />
-            );
-          }
-
-          return;
-        },
-      };
-    });
-  }, [apiRef, initialColumns, optionForEditFieldEmpty, optionsForEditField, prefixForRowBlockedStyle]);
+            const options = optionsForEditField?.get(params.field);
+            if (options !== undefined) {
+              return (
+                <AutocompleteEditInputCell
+                  params={params}
+                  value={params.formattedValue}
+                  options={options}
+                  freeSolo={false}
+                  multiple={false}
+                  apiRef={apiRef}
+                />
+              );
+            }
+          },
+        };
+      }),
+    ];
+  }, [apiRef, initialColumns, optionsForEditField, tableColumnsWidth]);
 
   useEffect(() => {
-    apiRef.current.setPaginationModel(tablePageModel);
+    apiRef.current.subscribeEvent('columnHeaderDragEnd', () => {
+      saveTableColumnsOrder && saveTableColumnsOrder(apiRef.current.getAllColumns().map(col => col.field));
+    });
+  }, [apiRef, saveTableColumnsOrder]);
+
+  useEffect(() => {
+    tablePageModel && apiRef.current.setPaginationModel(tablePageModel);
   }, [apiRef, tablePageModel]);
 
   useEffect(() => {
-    apiRef.current.setFilterModel(tableFilterModel);
+    tableFilterModel && apiRef.current.setFilterModel(tableFilterModel);
   }, [apiRef, tableFilterModel]);
 
   useEffect(() => {
-    apiRef.current.setSortModel(tableSortModel);
+    tableSortModel && apiRef.current.setSortModel(tableSortModel);
   }, [apiRef, tableSortModel]);
 
   useEffect(() => {
-    apiRef.current.setColumnVisibilityModel(tableVisibilityModel);
+    tableVisibilityModel && apiRef.current.setColumnVisibilityModel(tableVisibilityModel);
   }, [apiRef, tableVisibilityModel]);
+
+  useEffect(() => {
+    // для исключения дубликатов скрываем колонки, по которым организована группировка
+    if (!notHideGroupingDuplicateColumn) {
+      const columnsToHide = initialColumns.filter(col => col.groupable).map(col => col.field);
+
+      columnsToHide.forEach(col => {
+        if (tableVisibilityModel) {
+          tableVisibilityModel[col] = false;
+        }
+      });
+    }
+  }, [columns, notHideGroupingDuplicateColumn, initialColumns, tableVisibilityModel]);
 
   useEffect(() => {
     const handleRowClick: GridEventListener<'rowClick'> = params => {
@@ -201,237 +293,144 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     return apiRef.current.subscribeEvent('rowClick', handleRowClick);
   }, [apiRef, onRowClick]);
 
-  // Диалог подтверждения изменений
-  const renderConfirmDialog = () => {
+  const onColumnWidthChange = (params: GridColumnResizeParams) => {
+    tableColumnsWidth?.set(params.colDef.field, params.width);
+    saveTableColumnsWidth && tableColumnsWidth && saveTableColumnsWidth(tableColumnsWidth);
+  };
 
-    const handleNo = () => {
-      const { oldRow, resolve } = promiseArguments;
-      resolve(oldRow);
-      setPromiseArguments(null);
+  useEffect(() => {
+    const handleEvent: GridEventListener<'cellKeyDown'> = (params, event) => {
+      if (event.code == 'Enter') {
+        setEditModeActive(!editModeActive);
+      } else if (event.code == 'Escape') {
+        setEditModeActive(false);
+      }
     };
 
-    const handleYes = async () => {
-      const { newRow, oldRow, reject, resolve } = promiseArguments;
+    apiRef.current.subscribeEvent('cellDoubleClick', handleEvent);
+    apiRef.current.subscribeEvent('cellKeyDown', handleEvent);
+  }, [apiRef, editModeActive]);
 
-      try {
-        if (await mutationUpdate(newRow)) {
-          resolve(notUpdateRowAfterMutate && oldRow.id.toString().startsWith('empty_') ? oldRow : newRow);
-        } else {
-          throw new Error('Сервер вернул неуспешный результат');
+  const getCellClassName = useCallback(
+    (params: GridCellParams<any, GridValidRowModel, GridValidRowModel>) => {
+      if (!cellsBackgroundColors) {
+        return '';
+      }
+
+      const fields = cellsBackgroundColors?.get(params.id.toString());
+      if (fields) {
+        const value = fields.get(params.field);
+        if (value === 1) {
+          return 'hot';
+        } else if (value === 2) {
+          return 'cold';
         }
-      } catch (error) {
-        const text = `Ошибка во время обновления записи: ${error}`;
-        console.error(text);
-        setSnackbar({ children: text, severity: 'error' });
-        reject(oldRow);
-      } finally {
-        setPromiseArguments(null);
       }
-    };
 
-    const handleEntered = () => {
-      // The `autoFocus` is not used because, if used, the same Enter that saves
-      // the cell triggers "No". Instead, we manually focus the "No" button once
-      // the dialog is fully open.
-      // noButtonRef.current?.focus();
-      yesButtonRef.current?.focus();
-    };
-
-    if (!promiseArguments) {
-      return null;
-    }
-
-    const { newRow, oldRow } = promiseArguments;
-    const notMutation = checkIsTheSameRow(newRow, oldRow);
-    if (notMutation) {
-      return null;
-    }
-
-    return (
-      <Dialog
-        maxWidth="xs"
-        TransitionProps={{ onEntered: handleEntered }}
-        open={!!promiseArguments}
-        TransitionComponent={Transition}
-        keepMounted
-        disableRestoreFocus
-      >
-        <DialogTitle>Обновить запись?</DialogTitle>
-        <DialogActions>
-          <Button ref={noButtonRef} onClick={handleNo}>
-            Отмена
-          </Button>
-          <Button ref={yesButtonRef} onClick={handleYes}>
-            Да
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  };
-  // Диалог подтверждения изменений
-
-  const handleFileSelection = (event, source: string) => {
-    const file = event.target.files[0];
-    if (file && !isUploading) {
-      try {
-        setSelectedFile(file); // Save the selected file
-      } finally {
-        setFileStatus(source); // Save the source of the file
-        setOpenFileDialog(true); // Open the dialog
-      }
-    }
-  };
-
-  const handleConfirmUpload = async () => {
-    if (selectedFile && (uploadFileNew || uploadFileExist) && fileStatus && !isUploading) {
-      setIsUploading(true);
-      setOpenFileDialog(false); // Close the dialog after handling the confirmation
-      try {
-        if (uploadFileNew && fileStatus === 'new') {
-          const uploadResult = await uploadFileNew(selectedFile);
-          console.log('Upload successful:', uploadResult);
-        } else if (uploadFileExist && fileStatus === 'exists') {
-          const uploadResult = await uploadFileExist(selectedFile);
-          console.log('Upload successful:', uploadResult);
-        } else {
-          throw new Error('Неизвестный источник файла');
-        }
-      } finally {
-        setIsUploading(false); // Re-enable the button
-        setSelectedFile(null);
-        setFileStatus(null);
-      }
-    }
-  };
-
-  const AlertDialog = () => (
-    <Dialog
-      maxWidth="xs"
-      open={openFileDialog && !isUploading}
-      onClose={() => setOpenFileDialog(false)}
-      TransitionComponent={Transition}
-      keepMounted
-      disableRestoreFocus
-    >
-      <DialogTitle>Загрузить данные из файла?</DialogTitle>
-      <DialogActions>
-        <Button onClick={() => setOpenFileDialog(false)}>Отмена</Button>
-        <Button onClick={handleConfirmUpload} disabled={isUploading}>Да</Button>
-      </DialogActions>
-    </Dialog>
+      return '';
+    },
+    [cellsBackgroundColors],
   );
 
+  const handleCellKeyDown = useCallback(
+    (params, event) => {
+      if (onCellKeyDownEvent) {
+        onCellKeyDownEvent(event.key);
+      }
+    },
+    [onCellKeyDownEvent],
+  );
 
-  const CustomToolbar = () => {
-    return (
-      <GridToolbarContainer>
-        <GridToolbarColumnsButton />
-        <GridToolbarFilterButton />
-        <GridToolbarDensitySelector />
-        <GridToolbarExport
-          csvOptions={{
-            allColumns: !exportHeaders,
-            fields: exportHeaders,
-            fileName: exportFileName || 'output',
-            delimiter: ';',
-            utf8WithBom: true,
-            disableToolbarButton: isLoading,
-            gridFilteredSortedRowIdsSelector: true,
-          }}
-          printOptions={{ disableToolbarButton: true }}
-          //showQuickFilter={true}
-          //quickFilterProps={{ debounceMs: 250 }}
-        />
-        <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
-          Загрузить новые записи Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'new')} />
-        </Button>
-        <Button component="label" tabIndex={-1} startIcon={<CloudUploadIcon />}>
-          Загрузить изменения Excel
-          <VisuallyHiddenInput accept=".xlsx" type="file" onChange={(e) => handleFileSelection(e, 'exists')} />
-        </Button>
-      </GridToolbarContainer>
+  const toolbarSlot = isSimpleTable
+    ? undefined
+    : props => (
+      <CustomToolbar
+        {...props}
+        toolbarCustomButtons={toolbarCustomButtons}
+        isLoading={isLoading}
+        exportHeaders={exportHeaders}
+        exportFileName={exportFileName}
+      />
     );
+
+  const slots = {
+    toolbar: toolbarSlot,
   };
 
   return (
     <>
-      {renderConfirmDialog()}
-      <AlertDialog />
       <StyledDataGrid
+        groupingColDef={groupingColDef}
+        onCellKeyDown={handleCellKeyDown}
+        apiRef={apiRef}
         rows={initialRows}
         columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: tablePageModel,
-          },
-          filter: {
-            filterModel: tableFilterModel,
-          },
-          sorting: {
-            sortModel: tableSortModel,
-          },
-          columns: {
-            columnVisibilityModel: tableVisibilityModel,
-          },
-        }}
-        density={tableDensityMode}
-        onStateChange={v => v.density && tableDensityMode !== v.density.value && saveTableDensityMode(v.density.value)}
+        initialState={initialState}
+        getCellClassName={getCellClassName}
+        density={tableDensityMode ?? 'standard'}
+        onStateChange={v =>
+          v.density &&
+          tableDensityMode !== v.density.value &&
+          saveTableDensityMode &&
+          saveTableDensityMode(v.density.value)
+        }
+        aggregationFunctions={aggregationFunctions ? {
+          ...GRID_AGGREGATION_FUNCTIONS,
+          custom: aggregationFunctions,
+        } : { ...GRID_AGGREGATION_FUNCTIONS }}
         autoHeight
+        // clipboardCopyCellDelimiter={','}
+        // unstable_splitClipboardPastedText={(text) => text.split('\n').map((row) => row.split(','))}
+        unstable_headerFilters={!isSimpleTable}
+        autosizeOptions={autosizeOptions}
+        disableColumnResize={false}
+        hideFooter={isSimpleTable}
+        onColumnWidthChange={onColumnWidthChange}
         onPaginationModelChange={saveTablePageData}
         onFilterModelChange={saveTableFilterData}
         onSortModelChange={saveTableSortData}
         onColumnVisibilityModelChange={saveTableVisibilityData}
-        apiRef={apiRef}
         rowHeight={rowHeight}
-        hideFooterSelectedRowCount={hideFooterSelectedRowCount}
+        hideFooterSelectedRowCount={isSimpleTable ?? hideFooterSelectedRowCount}
         pageSizeOptions={[5, 10, 20, 50, 100]}
-        checkboxSelection={checkboxSelection}
         getRowClassName={params => {
-          let classes = params.indexRelativeToCurrentPage % 2 === 0 ? 'super-app-theme' : 'super-app-theme-even';
-          classes +=
-            prefixForRowBlockedStyle && params.id.toString().startsWith(prefixForRowBlockedStyle)
-              ? ' super-app-theme-blocked'
-              : '';
-
-          return classes;
+          return params.indexRelativeToCurrentPage % 2 === 0 ? 'super-app-theme' : 'super-app-theme-even';
         }}
-        slots={{ toolbar: CustomToolbar }}
-        slotProps={{
-          pagination: {
-            labelRowsPerPage: 'Строк на странице',
-          },
-        }}
-        sx={{
-          '& .MuiDataGrid-cell': {
-            padding: 0,
-          },
-          '& .MuiDataGrid-cell:hover': {
-            color: 'primary.dark',
-            cursor: 'pointer',
-          },
-          '& .super-app-theme--header': {
-            color: 'primary.darker',
-            backgroundColor: 'primary.lighter',
-          },
-        }}
-        disableRowSelectionOnClick={disableRowSelectionOnClick}
-        disableColumnSelector={disableColumnSelector}
+        slots={slots}
+        columnHeaderHeight={34}
+        checkboxSelection={checkboxSelection}
+        disableRowSelectionOnClick={isSimpleTable ?? checkboxSelection}
+        checkboxSelectionVisibleOnly={true}
+        pagination={!isSimpleTable}
+        unstable_ignoreValueFormatterDuringExport={true}
+        unstable_cellSelection={true}
+        disableColumnSelector={false}
         className={classes.grid}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        editMode={editMode}
+        editMode={editModeActive ? editMode : undefined}
         processRowUpdate={processRowUpdate}
-        isCellEditable={(params) => {
-          if (prefixForRowBlockedStyle === undefined) {
-            return true;
-          }
-
-          return !params.id.toString().startsWith(prefixForRowBlockedStyle);
+        rowGroupingColumnMode={rowGroupingColumnMode}
+        defaultGroupingExpansionDepth={1}
+        onRowDoubleClick={() => {
         }}
-        onRowEditStop={(params, event) => {
+        onCellEditStart={onCellEditStart}
+        onRowEditStart={onRowEditStart}
+        // isCellEditable={() => editModeActive}
+        onRowEditStop={(params, event, details) => {
           if (params.field && onRowEditStopForFields?.includes(params.field) && params.reason === 'enterKeyDown') {
             event.defaultMuiPrevented = true;
           }
+
+          if (onRowEditStop) {
+            onRowEditStop(params, event, details);
+          }
+        }}
+        unstable_onCellSelectionModelChange={(newModel: GridCellSelectionModel) => {
+          setEditModeActive(false);
+          onChangeCellSelectionModel && onChangeCellSelectionModel(newModel);
+        }}
+        onRowSelectionModelChange={newModel => {
+          onChangeRowSelectionModel && onChangeRowSelectionModel(newModel);
         }}
       />
       {!!snackbar && (

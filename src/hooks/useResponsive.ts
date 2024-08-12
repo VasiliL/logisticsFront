@@ -33,6 +33,6 @@ export const useWidth = () => {
       const matches = useMediaQuery(theme.breakpoints.up(key));
 
       return !output && matches ? key : output;
-    }, null) || 'xs'
+    }, null) ?? 'xs'
   );
 };

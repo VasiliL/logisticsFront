@@ -9,6 +9,7 @@ interface IDialogProps {
   handleApply: () => void;
   disabled?: boolean;
   style?: React.CSSProperties;
+  btnType?: 'text' | 'outlined' | 'contained';
 }
 
 export const AlertBtnDialog: FC<IDialogProps> = (props: IDialogProps) => {
@@ -30,7 +31,7 @@ export const AlertBtnDialog: FC<IDialogProps> = (props: IDialogProps) => {
 
   return (
     <>
-      <Button variant="contained" onClick={handleClickOpen} disabled={disabled} style={style}>
+      <Button variant={props.btnType} onClick={handleClickOpen} disabled={disabled} style={style}>
         {btnTitle}
       </Button>
       <Dialog

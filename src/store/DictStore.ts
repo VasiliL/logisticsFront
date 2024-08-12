@@ -6,7 +6,7 @@ import { IDictCarBL, IDictDriverBL } from './types';
 
 class CDictStore {
   // Флаг состояния загрузки данных
-  private _isLoading = true;
+  private _isLoading = false;
   // список справочников Cars
   private _cars: IDictCarBL[] = [];
   // список справочников Driver
@@ -62,26 +62,19 @@ class CDictStore {
 
   // #region business logic (BL)
 
-  // список водителей, отображаемые на пересечении в таблице
+  // список водителей, отображаемые на пересецении в таблице
   get driverIdList() {
-    return [''].concat(this.drivers?.map(driver => driver.fio) || []);
-  }
-
-  // список водителей, отображаемые на пересечении в таблице, только для РВ-ТАРИФ
-  get driverIdListMyCompany() {
-    return [''].concat(this.drivers
-      ?.filter(driver => driver.company === 'РВ-ТАРИФ ООО')
-      .map(driver => driver.fio) || []);
+    return [''].concat(this.drivers?.map(driver => driver.fio) ?? []);
   }
 
   // список машин, отображаемые на пересецении в таблице
   get carNumberList() {
-    return [...new Set(this.cars?.map(car => car.plate_number) || [])];
+    return [...new Set(this.cars?.map(car => car.plate_number) ?? [])];
   }
 
   // список машин с описанием, отображаемые на пересецении в таблице
   get carDescriptionList() {
-    return [...new Set(this.cars?.map(car => car.description) || [])];
+    return [...new Set(this.cars?.map(car => car.description) ?? [])];
   }
 
   // список водителей в виде id -> fio
@@ -103,7 +96,7 @@ class CDictStore {
   // список машин в виде id -> plate_number
   get carIdMap() {
     const map = new Map<number, IDictCarBL>();
-    this.cars?.forEach(car => map.set(car.id, car));
+    this.cars?.forEach(car => map.set(car.item_id, car));
 
     return map;
   }
@@ -111,7 +104,7 @@ class CDictStore {
   // список машин в виде plate_number -> id
   get carNumberMap() {
     const map = new Map<string, number>();
-    this.cars?.forEach(car => map.set(car.plate_number, car.id));
+    this.cars?.forEach(car => map.set(car.plate_number, car.item_id));
 
     return map;
   }
@@ -119,7 +112,7 @@ class CDictStore {
   // список машин с описанием в виде plate_number -> id
   get carDescriptionMap() {
     const map = new Map<string, number>();
-    this.cars?.forEach(car => map.set(car.description, car.id));
+    this.cars?.forEach(car => map.set(car.description, car.item_id));
 
     return map;
   }

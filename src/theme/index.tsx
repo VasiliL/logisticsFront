@@ -3,10 +3,14 @@ import React, { useMemo } from 'react';
 
 import CssBaseline from '@mui/material/CssBaseline';
 import { createTheme, ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
+import { observer } from 'mobx-react-lite';
 
-import { palette } from './palette';
-import { shadows } from './shadows';
-import { overrides } from './overrides';
+import { themeStore } from '@src/store/ThemeStore';
+
+import { darkPalette } from './dark-palette';
+import { lightPalette } from './light-palette';
+import { lightOverrides } from './light-overrides';
+import { darkOverrides } from './dark-overrides';
 import { typography } from './typography';
 import { customShadows } from './custom-shadows';
 
@@ -14,28 +18,39 @@ interface IThemeProviderProps {
   children: React.ReactNode;
 }
 
-export const ThemeProvider = (props: IThemeProviderProps) => {
+export const ThemeProvider = observer((props: IThemeProviderProps) => {
   const { children } = props;
-  const memoizedValue: any = useMemo(
+  const lightMemoizedValue: any = useMemo(
     () => ({
-      palette: palette(),
+      palette: lightPalette(),
       typography,
-      shadows: shadows(),
       customShadows: customShadows(),
-      shape: { borderRadius: 8 },
     }),
     [],
   );
 
-  const theme = createTheme(memoizedValue);
+  const darkMemoizedValue: any = useMemo(
+    () => ({
+      palette: darkPalette(),
+      typography,
+      customShadows: customShadows(),
+    }),
+    [],
+  );
+
+  const lightTheme = createTheme(lightMemoizedValue);
+  const darkTheme = createTheme(darkMemoizedValue);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
-  theme.components = overrides(theme);
+  lightTheme.components = lightOverrides(lightTheme);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  darkTheme.components = darkOverrides(darkTheme);
 
   return (
-    <MUIThemeProvider theme={theme}>
+    <MUIThemeProvider theme={themeStore.theme === 'light' ? lightTheme : darkTheme}>
       <CssBaseline />
       {children}
     </MUIThemeProvider>
   );
-};
+});

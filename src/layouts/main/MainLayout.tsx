@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import Box from '@mui/material/Box';
+import CssBaseline from '@mui/material/CssBaseline';
 
 import { Nav } from './Nav';
 import { Main } from './Main';
@@ -12,23 +13,23 @@ interface IDashboardLayoutProps {
 
 export const MainLayout = (props: IDashboardLayoutProps) => {
   const { children } = props;
-  const [openNav, setOpenNav] = useState(false);
+  const [openNav, setOpenNav] = useState(true);
 
   return (
-    <>
-      <Header onOpenNav={() => setOpenNav(true)} />
+    <Box
+      sx={{
+        minHeight: 1,
+        display: 'flex',
+        flexDirection: { xs: 'column', lg: 'row' },
+      }}
+    >
+      <CssBaseline />
 
-      <Box
-        sx={{
-          minHeight: 1,
-          display: 'flex',
-          flexDirection: { xs: 'column', lg: 'row' },
-        }}
-      >
-        <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
+      <Header onOpenNav={() => setOpenNav(!openNav)} />
 
-        <Main>{children}</Main>
-      </Box>
-    </>
+      <Nav openNav={openNav} onCloseNav={() => setOpenNav(false)} />
+
+      <Main>{children}</Main>
+    </Box>
   );
 };
