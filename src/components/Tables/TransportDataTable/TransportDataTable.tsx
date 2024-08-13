@@ -145,7 +145,7 @@ export const TransportDataTable: FC = observer(() => {
           minWidth: 100,
           type: 'string',
           align: 'center',
-          editable: false,
+          editable: true,
           resizable: true,
           headerClassName: 'super-app-theme--header',
         },
@@ -157,7 +157,7 @@ export const TransportDataTable: FC = observer(() => {
           minWidth: 100,
           type: 'string',
           align: 'center',
-          editable: false,
+          editable: true,
           resizable: true,
           headerClassName: 'super-app-theme--header',
         },
@@ -475,6 +475,7 @@ export const TransportDataTable: FC = observer(() => {
             rowGroupingColumnMode={'multiple'}
             rowGroupingFields={['client', 'cargo']}
             aggregationFields={aggregationFields}
+            preventEditModeFor={{ fields: ['weight', 'weight_arrival'], keys: ['KeyP', 'KeyI', 'KeyO'] }}
             toolbarCustomButtons={customToolbarButtons}
             onChangeRowSelectionModel={setRowSelectionModel}
             onChangeCellSelectionModel={setCellSelectionModel}

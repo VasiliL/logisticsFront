@@ -14,7 +14,7 @@ module.exports = [
   new Dotenv(),
   new HtmlWebpackPlugin({
     template: 'src/index.html',
-    favicon: 'public/assets/logo_light.png',
+    favicon: 'public/favicon/fav.png',
     inject: true,
   }),
   new MiniCssExtractPlugin({

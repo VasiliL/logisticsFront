@@ -40,6 +40,11 @@ import type { GridAggregationFunction } from '@mui/x-data-grid-premium/hooks/fea
 
 import { StyledDataGrid, useStyles } from './StyledDataGrid';
 
+export interface IPreventEditFor {
+  fields: string[];
+  keys: string[];
+}
+
 export interface ICustomToolbarButtonProps {
   text: string;
   disabled?: boolean;
@@ -75,6 +80,7 @@ interface IDataTableGridProps {
   editMode?: GridEditMode;
   onRowEditStopForFields?: string[];
   optionsForEditField?: Map<string, string[]>;
+  preventEditModeFor?: IPreventEditFor;
   // column grouping
   rowGroupingColumnMode?: 'single' | 'multiple';
   rowGroupingFields?: string[];
@@ -148,6 +154,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     aggregationFunctions,
     notHideGroupingDuplicateColumn,
     onCellEditStart,
+    preventEditModeFor,
   } = props;
 
   const [snackbar, setSnackbar] = useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
@@ -300,16 +307,19 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
 
   useEffect(() => {
     const handleEvent: GridEventListener<'cellKeyDown'> = (params, event) => {
-      if (event.code == 'Enter') {
-        setEditModeActive(!editModeActive);
-      } else if (event.code == 'Escape') {
+      if (!preventEditModeFor) {
+        return;
+      }
+
+      if (preventEditModeFor.keys.includes(event.code) && preventEditModeFor.fields.includes(params.field)) {
         setEditModeActive(false);
+      } else {
+        setEditModeActive(true);
       }
     };
 
-    apiRef.current.subscribeEvent('cellDoubleClick', handleEvent);
     apiRef.current.subscribeEvent('cellKeyDown', handleEvent);
-  }, [apiRef, editModeActive]);
+  }, [apiRef, editModeActive, preventEditModeFor]);
 
   const getCellClassName = useCallback(
     (params: GridCellParams<any, GridValidRowModel, GridValidRowModel>) => {
@@ -407,15 +417,15 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         disableColumnSelector={false}
         className={classes.grid}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        editMode={editModeActive ? editMode : undefined}
+        editMode={editMode}
         processRowUpdate={processRowUpdate}
         rowGroupingColumnMode={rowGroupingColumnMode}
         defaultGroupingExpansionDepth={1}
-        onRowDoubleClick={() => {
-        }}
+        // onRowDoubleClick={() => {}}
         onCellEditStart={onCellEditStart}
         onRowEditStart={onRowEditStart}
-        // isCellEditable={() => editModeActive}
+        isCellEditable={() => editModeActive}
+        // onRowEditStart={(params, event, details) => {}}
         onRowEditStop={(params, event, details) => {
           if (params.field && onRowEditStopForFields?.includes(params.field) && params.reason === 'enterKeyDown') {
             event.defaultMuiPrevented = true;
@@ -426,7 +436,6 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
           }
         }}
         unstable_onCellSelectionModelChange={(newModel: GridCellSelectionModel) => {
-          setEditModeActive(false);
           onChangeCellSelectionModel && onChangeCellSelectionModel(newModel);
         }}
         onRowSelectionModelChange={newModel => {
