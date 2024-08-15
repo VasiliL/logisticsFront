@@ -94,6 +94,7 @@ export const CreateRunsTable: FC = observer(() => {
         align: 'center',
         sortable: false,
         editable: true,
+        resizable: true,
         headerClassName: 'super-app-theme--header',
         valueGetter: value => (value.value ?? []).join(','),
       },

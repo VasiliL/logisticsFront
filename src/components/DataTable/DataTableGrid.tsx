@@ -158,7 +158,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
   } = props;
 
   const [snackbar, setSnackbar] = useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
-  const [editModeActive, setEditModeActive] = React.useState<boolean>(false);
+  const [editModeActive, setEditModeActive] = React.useState<boolean>(true);
 
   const handleCloseSnackbar = () => setSnackbar(null);
 
@@ -424,7 +424,7 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
         // onRowDoubleClick={() => {}}
         onCellEditStart={onCellEditStart}
         onRowEditStart={onRowEditStart}
-        isCellEditable={() => editModeActive}
+        isCellEditable={() => preventEditModeFor === undefined || editModeActive}
         // onRowEditStart={(params, event, details) => {}}
         onRowEditStop={(params, event, details) => {
           if (params.field && onRowEditStopForFields?.includes(params.field) && params.reason === 'enterKeyDown') {
