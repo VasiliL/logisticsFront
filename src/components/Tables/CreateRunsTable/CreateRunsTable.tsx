@@ -20,7 +20,7 @@ import {
 import { GridAggregationModel } from '@mui/x-data-grid-premium/hooks/features/aggregation/gridAggregationInterfaces';
 import { GridAggregationFunction } from '@mui/x-data-grid-premium/hooks/features/aggregation';
 
-type RowType = { id: number | string | null; invoice: string; car: (string | null)[] | undefined; };
+type RowType = { id: number | string | null; invoice: string; car: string[] | undefined; };
 
 export const CreateRunsTable: FC = observer(() => {
   const {
@@ -32,6 +32,7 @@ export const CreateRunsTable: FC = observer(() => {
     userSettings,
     invoices,
     list,
+    updateRunLocally,
   } = CreateRunsTableStore;
   const { carIdMap } = DictStore;
   const { isLoading, carDescriptionMap, cars } = DictStore;
@@ -105,25 +106,23 @@ export const CreateRunsTable: FC = observer(() => {
 
   const { rows, computedTotalCarsCount }: { rows: RowType[]; computedTotalCarsCount: number } = useMemo(() => {
     const result: RowType[] = [];
-    // let totalCarsCount = 0;
 
     list?.forEach(entry => {
       const invoice = invoices?.find(inv => inv.item_id === entry.invoice_id);
-      // const numCars = entry.cars.length;
+
+      const cars = [] as string[];
+      entry.cars.forEach(id => {
+        const res = carIdMap.get(id)?.plate_number;
+        if (res) {
+          cars.push(res);
+        }
+      });
 
       result.push({
         id: entry.invoice_id,
         invoice: `${invoice?.client} - ${invoice?.cargo} - ${invoice?.route}`,
-        car: entry.cars.map(id => carIdMap.get(id)?.plate_number || null) || [],
+        car: cars,
       });
-
-      // totalCarsCount += numCars;
-
-      // result.push({
-      //   id: `agg-${entry.invoice_id}`,
-      //   invoice: '',
-      //   car: [`Машин на маршруте: ${numCars}`],
-      // });
     });
 
     return { rows: result, computedTotalCarsCount: totalCarsCount };
@@ -138,11 +137,11 @@ export const CreateRunsTable: FC = observer(() => {
       const id = currentSelectedInvoice.id?.toString();
       const cars = currentSelectedInvoice.car;
       const carsIds = cars?.map(car => carDescriptionMap.get(car || '') || 0) || [];
-      if (id !== undefined && carsIds !== undefined && carsIds.length > 0 && carsIds[0] !== 0) {
-        void updateRun(id, carsIds);
+      if (id !== undefined && carsIds !== undefined && carsIds[0] !== 0) {
+        updateRunLocally(id, carsIds);
       }
     }
-  }, [carDescriptionMap, currentSelectedInvoice, updateRun]);
+  }, [carDescriptionMap, currentSelectedInvoice, updateRunLocally]);
 
   const groupingColDef: DataGridPremiumProps['groupingColDef'] = {
     headerName: '',
@@ -155,7 +154,7 @@ export const CreateRunsTable: FC = observer(() => {
 
   const carsCountAggregation: GridAggregationFunction<string, string | null> = {
     apply: (params) => {
-      if (params.values.length === 0) {
+      if (params.values.length === 0 || params.values[0] === '') {
         return 'Машин на маршруте: 0';
       }
 
@@ -214,7 +213,6 @@ export const CreateRunsTable: FC = observer(() => {
           notHideGroupingDuplicateColumn={true}
           aggregationFields={aggregationFields}
           aggregationFunctions={carsCountAggregation}
-          //onRowEditStart
           onCellEditStart={params => {
             const carList = params.row.car?.map(carModel => {
               const foundCar = cars.find(car => car.plate_number === carModel);
@@ -233,16 +231,19 @@ export const CreateRunsTable: FC = observer(() => {
             setOpenDrawer(true);
           }}
         />
-        {/*<Typography*/}
-        {/*  sx={{ color: theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.main }}*/}
-        {/*  variant="subtitle2"*/}
-        {/*  gutterBottom*/}
-        {/*>*/}
-        {/*  Всего машин на маршрутах: {totalCarsCount}*/}
-        {/*</Typography>*/}
         <CreateRunsTableDrawer
           open={openDrawer}
-          setOpen={setOpenDrawer}
+          setOpen={(value: boolean) => {
+            setOpenDrawer(value);
+            if (currentSelectedInvoice) {
+              const id = currentSelectedInvoice.id?.toString();
+              const cars = currentSelectedInvoice.car;
+              const carsIds = cars?.map(car => carDescriptionMap.get(car || '') || 0) || [];
+              if (id !== undefined && carsIds !== undefined) {
+                void updateRun(id, carsIds);
+              }
+            }
+          }}
           carsList={carsList}
           onChangeAutoComplete={(event, value) => {
             setCurrentSelectedInvoice({ ...currentSelectedInvoice, car: value });

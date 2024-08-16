@@ -87,13 +87,22 @@ class CCreateRunsTableStore {
 
   // #region business logic (BL)
 
+  public updateRunLocally(invoiceId: string, cars: number[]) {
+    this.list = this.list.map(l => l.invoice_id == invoiceId ? { ...l, cars } : l);
+  }
+
   public async updateRun(invoiceId: string, cars: number[]): Promise<boolean> {
     try {
       this.isPendingActions = true;
       const date = this.settingsStore?.dateStr ?? nowStr();
-      const id = await LogisticsDailyPlanApiService.update({ invoice_id: invoiceId, date_departure: date, cars });
+      const isSuccess = await LogisticsDailyPlanApiService.update({
+        invoice_id: invoiceId,
+        date_departure: date,
+        cars,
+      });
+      this.updateRunLocally(invoiceId, cars);
 
-      return id !== undefined;
+      return isSuccess !== undefined;
     } finally {
       this.isPendingActions = false;
     }
