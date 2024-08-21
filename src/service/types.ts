@@ -11,13 +11,13 @@ export interface IDataApiService {
 export interface IRunApiService {
   getListRuns(dto: IDaysRqDto): Promise<IRunDto[]>;
 
-  createRun(dto: ICreateRunDto): Promise<number>;
+  createRun(dto: ICreateRunDto): Promise<IRunDto>;
 
   createByInvoiceRun(dto: ICreateByInvoiceRunDto): Promise<number>;
 
   updateRun(dto: IRunDto): Promise<boolean>;
 
-  updateMultipleRun(dto: IRunDto[]): Promise<boolean>;
+  updateMultipleRun(dto: IRunDto[]): Promise<IRunDto[]>;
 
   deleteRun(id: string): Promise<boolean>;
 }

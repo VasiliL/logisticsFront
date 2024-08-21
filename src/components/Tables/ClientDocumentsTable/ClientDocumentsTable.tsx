@@ -36,6 +36,8 @@ export const ClientDocumentsTable: FC = observer(() => {
   const [viewMode, setViewMode] = useState<boolean>(userSettings.viewMode);
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>();
   const [cellSelectionModel, setCellSelectionModel] = useState<GridCellSelectionModel>();
+  const [rowsForUpdate, setRowsForUpdate] = useState<object[] | undefined>(undefined);
+  const [visibilityModel, setVisibilityModel] = useState(userSettings.tableVisibilityModel);
 
   useEffect(() => {
     void init();
@@ -236,7 +238,7 @@ export const ClientDocumentsTable: FC = observer(() => {
     return cols;
   }, []);
 
-  const rows = useMemo(() => {
+  const makeRows = (list: IRunDto[]) => {
     return list?.map(item => ({
       id: item.item_id,
       run_id: item.item_id,
@@ -246,13 +248,17 @@ export const ClientDocumentsTable: FC = observer(() => {
       date_arrival: item.date_arrival,
       client: item.invoice.client,
       cargo: item.invoice.cargo,
-      doc_type_7: item.documents?.find(doc => doc.doc_type_obj?.item_id == '7')?.name,
-      doc_type_2: item.documents?.find(doc => doc.doc_type_obj?.item_id == '2')?.name,
-      doc_type_4: item.documents?.find(doc => doc.doc_type_obj?.item_id == '4')?.name,
+      doc_type_7: item.documents?.find(doc => doc.doc_type_obj?.item_id == '7' || doc.doc_type == 7)?.name,
+      doc_type_2: item.documents?.find(doc => doc.doc_type_obj?.item_id == '2' || doc.doc_type == 2)?.name,
+      doc_type_4: item.documents?.find(doc => doc.doc_type_obj?.item_id == '4' || doc.doc_type == 4)?.name,
       route: item.invoice.route,
       weight: item.weight ? parseFloat(item.weight?.toString() ?? 0) : null,
       weight_arrival: item.weight_arrival ? parseFloat(item.weight_arrival?.toString() ?? 0) : null,
     }));
+  };
+
+  const rows = useMemo(() => {
+    return makeRows(list);
   }, [list]);
 
   const cellsBackgroundColors = useMemo(() => {
@@ -301,8 +307,11 @@ export const ClientDocumentsTable: FC = observer(() => {
 
   const handleChangeMode = (): void => {
     const mode = !viewMode;
+    const model = { ...visibilityModel, doc_type_4: mode, doc_type_7: !mode };
     setViewMode(mode);
+    setVisibilityModel(model);
     userSettings.saveViewMode(mode);
+    userSettings.saveTableVisibilityData(model);
   };
 
   const handleApply = useCallback(async (value: string, type: number) => {
@@ -331,6 +340,7 @@ export const ClientDocumentsTable: FC = observer(() => {
         }
       });
       if (res && res.length > 0) {
+        setRowsForUpdate(makeRows(res));
         await updateRun(res);
       }
     }
@@ -464,6 +474,7 @@ export const ClientDocumentsTable: FC = observer(() => {
         <DataTableGrid
           columns={columns}
           rows={rows}
+          rowsForUpdate={rowsForUpdate}
           editMode={'cell'}
           checkboxSelection={true}
           hideFooterSelectedRowCount={false}
@@ -471,7 +482,7 @@ export const ClientDocumentsTable: FC = observer(() => {
           tablePageModel={userSettings.tablePageModel}
           tableFilterModel={userSettings.tableFilterModel}
           tableSortModel={userSettings.tableSortModel}
-          tableVisibilityModel={userSettings.tableVisibilityModel}
+          tableVisibilityModel={visibilityModel}
           tableDensityMode={userSettings.tableDensityMode}
           tableColumnsWidth={userSettings.columnsWidth}
           tableColumnsOrder={userSettings.columnsOrder}

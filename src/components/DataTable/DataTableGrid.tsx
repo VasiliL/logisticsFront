@@ -56,6 +56,7 @@ interface IDataTableGridProps {
   // table data
   columns: GridColDef[];
   rows: object[];
+  rowsForUpdate?: object[];
   isSimpleTable?: boolean;
   rowHeight?: number;
   // table user settings from local storage
@@ -155,12 +156,19 @@ export const DataTableGrid: FC<IDataTableGridProps> = (props: IDataTableGridProp
     notHideGroupingDuplicateColumn,
     onCellEditStart,
     preventEditModeFor,
+    rowsForUpdate,
   } = props;
 
   const [snackbar, setSnackbar] = useState<Pick<AlertProps, 'children' | 'severity'> | null>(null);
   const [editModeActive, setEditModeActive] = React.useState<boolean>(true);
 
   const handleCloseSnackbar = () => setSnackbar(null);
+
+  useEffect(() => {
+    if (rowsForUpdate !== undefined && rowsForUpdate.length > 0) {
+      apiRef.current.updateRows(rowsForUpdate);
+    }
+  }, [apiRef, rowsForUpdate]);
 
   const processRowUpdate = useCallback(
     (newRow: GridRowModel, oldRow: GridRowModel) =>
