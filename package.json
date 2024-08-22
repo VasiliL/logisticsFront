@@ -38,7 +38,8 @@
     "react-router-dom": "^6.23.1",
     "react-use-websocket": "^4.8.1",
     "socket.io-client": "^4.7.5",
-    "twix": "^1.3.0"
+    "twix": "^1.3.0",
+    "react-toastify": "^10.0.5"
   },
   "devDependencies": {
     "@chbrown/bind": "^1.0.0",

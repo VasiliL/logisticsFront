@@ -1,5 +1,7 @@
 import { action, computed, observable, transaction } from 'mobx';
 
+import { toast } from 'react-toastify';
+
 import { IActionOptions } from './types';
 
 export class Action<T = unknown, R = unknown> {
@@ -110,6 +112,9 @@ export class Action<T = unknown, R = unknown> {
       }
 
       const error = await response.json();
+      if (error?.detail) {
+        toast(error.detail);
+      }
       console.error(error);
 
       this.setStatus(status);

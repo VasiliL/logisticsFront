@@ -239,7 +239,7 @@ export const CreateRunsTable: FC = observer(() => {
               const id = currentSelectedInvoice.id?.toString();
               const cars = currentSelectedInvoice.car;
               const carsIds = cars?.map(car => carDescriptionMap.get(car || '') || 0) || [];
-              if (id !== undefined && carsIds !== undefined) {
+              if (id !== undefined && carsIds !== undefined && carsList.length !== cars?.length) {
                 void updateRun(id, carsIds);
               }
             }

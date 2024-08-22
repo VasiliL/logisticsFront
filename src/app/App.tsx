@@ -4,6 +4,8 @@ import { Wrapper } from '@src/components/Wrapper/Wrapper';
 import { Router } from '@src/router/Router';
 import { LicenseInfo } from '@mui/x-license';
 import AuthStore from '@src/store/AuthStore';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
 const WS_URL = 'ws://testing.rwtarif.com:8000/api/v2/ws';
@@ -46,6 +48,7 @@ export default function App() {
   return (
     <Wrapper>
       <Router />
+      <ToastContainer />
     </Wrapper>
   );
 }
