@@ -88,6 +88,11 @@ export const AutocompleteEditInputCell: React.FC<Readonly<AutocompleteEditInputC
       disableClearable
       noOptionsText={'Значение не найдено'}
       getOptionLabel={getOptionLabel}
+      renderOption={(props, option) => (
+        <li {...props} key={props.id}>
+          {option}
+        </li>
+      )}
       sx={{
         '& .MuiAutocomplete-hasPopupIcon': {
           paddingTop: 0, paddingBottom: 0,

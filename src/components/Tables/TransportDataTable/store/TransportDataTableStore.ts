@@ -6,8 +6,7 @@ import { IUserSettings } from '@src/store/types';
 import { SettingsStore } from '@src/store/SettingsStore';
 
 import { RunApiService } from '@src/service/RunApiService';
-import { ICreateDocument, IRunDto } from '@src/service/types';
-import { DocumentApiService } from '@src/service/DocumentApiService';
+import { IRunDto } from '@src/service/types';
 
 class CTransportDataTableStore {
   // список Run
@@ -81,66 +80,13 @@ class CTransportDataTableStore {
     return this.list.find(run => run.item_id == id);
   }
 
-  // список данных для клеток таблицы в виде run_id -> run
-  // get entries() {
-  //   // const map = new Map<number, IDocumentBL>();
-  //   this.list?.forEach(item => {
-  //     const info = {
-  //       id: item.item_id,
-  //       car_id: item.car_id,
-  //       driver_id: item.driver_id,
-  //       weight: item.weight,
-  //       weight_arrival: item.weight_arrival,
-  //       invoice_id: item.invoice_id,
-  //       date_departure: item.date_departure,
-  //       date_arrival: item.date_arrival,
-  //       client: item.client,
-  //       cargo: item.cargo,
-  //       route: item.route,
-  //       client_weight_arrival: item.client_weight_arrival,
-  //       client_weight: item.client_weight,
-  //       reg_date: item.reg_date,
-  //       acc_date: item.acc_date,
-  //     } as IDocumentBL;
-  //     map.set(item.item_id ?? 0, info);
-  //   });
-  //
-  //   return map;
-  // }
-
-  public async createDocuments(dtos: ICreateDocument[]): Promise<boolean> {
-    try {
-      this.isPendingActions = true;
-
-      return await DocumentApiService.createMultipleDocument(dtos);
-    } finally {
-      this.isPendingActions = false;
-    }
-  }
-
   public async updateRun(dtos: IRunDto[]): Promise<boolean> {
     try {
       this.isPendingActions = true;
-      // const preparedDtos = dtos.map((dto: IRunDto) => {
-      //   const found = this.list.find(item => item.item_id === dto.item_id);
-      //   if (!found) throw new Error('Непредвиденная ошибка сервиса');
-      //
-      //   return {
-      //     ...found,
-      //     invoice: {
-      //       ...found.invoice,
-      //       waybill: dto.waybill,
-      //     },
-      //     // waybill: dto.waybill, todo
-      //     client_weight: dto.client_weight,
-      //     client_weight_arrival: dto.client_weight_arrival,
-      //     date_arrival: dto.date_arrival,
-      //     date_departure: dto.date_departure,
-      //     invoice_document: dto.invoice_document,
-      //   };
-      // });
 
-      return await RunApiService.updateMultipleRun(dtos);
+      const updated = await RunApiService.updateMultipleRun(dtos);
+
+      return updated !== undefined;
     } finally {
       this.isPendingActions = false;
     }

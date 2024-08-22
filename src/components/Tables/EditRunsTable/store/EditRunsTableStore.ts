@@ -9,11 +9,9 @@ import { RunApiService } from '@src/service/RunApiService';
 
 import { ICreateRunDto, IRunDto } from '@src/service/types';
 
-import { IRunBL } from './types';
-
 class CEditRunsTableStore {
   // список Run
-  private _list: IRunBL[] = [];
+  private _list: IRunDto[] = [];
   // Флаг состояния формирования списка Run
   private _isPendingList = false;
   // Флаг состояния выполнения действий с Run
@@ -51,11 +49,11 @@ class CEditRunsTableStore {
     this._userSettings = value;
   }
 
-  get list(): IRunBL[] {
+  get list(): IRunDto[] {
     return this._list;
   }
 
-  private set list(value: IRunBL[]) {
+  private set list(value: IRunDto[]) {
     this._list = value;
   }
 
@@ -83,65 +81,42 @@ class CEditRunsTableStore {
     return this.list.find(run => run.item_id == id);
   }
 
-  // список данных для клеток таблицы в виде run_id -> run
-  // get entries() {
-  //   const map = new Map<number, IDocumentBL>();
-  //   this.list?.forEach(item => {
-  //     const info = {
-  //       id: item.item_id,
-  //       car_id: item.car_id,
-  //       driver_id: item.driver_id,
-  //       weight: item.weight,
-  //       weight_arrival: item.weight_arrival,
-  //       invoice_id: item.invoice_id,
-  //       date_departure: item.date_departure,
-  //       date_arrival: item.date_arrival,
-  //       client: item.client,
-  //       cargo: item.cargo,
-  //       route: item.route,
-  //     } as IDocumentBL;
-  //     map.set(item.item_id ?? 0, info);
-  //   });
-  //
-  //   return map;
-  // }
-
-  public async updateRun(dto: IRunBL): Promise<boolean> {
+  public async updateRun(dto: IRunDto): Promise<boolean> {
     try {
       this.isPendingActions = true;
-      // const found = this.list.find(item => item.item_id === dto.item_id);
-      // if (!found) throw new Error('Непредвиденная ошибка сервиса');
+      const result = await RunApiService.updateMultipleRun([dto]);
 
-      const result = await RunApiService.updateMultipleRun([
-        // {
-        //   ...found,
-        //   weight: dto.weight,
-        //   weight_arrival: dto.weight_arrival,
-        //   driver_id: dto.driver_id,
-        //   car_id: dto.car_id,
-        // },
-        dto,
-      ]);
-      // if (result) {
-      //   this.list = this.list.map(item => (item.item_id === dto.item_id ? dto : item));
-      // }
-
-      return result;
+      return result !== undefined;
     } finally {
       this.isPendingActions = false;
     }
   }
 
-  public async createRun(dto: ICreateRunDto): Promise<boolean> {
+  public async createRun(entry: IRunDto): Promise<boolean> {
     try {
       this.isPendingActions = true;
-      const id = await RunApiService.createRun(dto);
-      // if (id) {
-      //   dto.item_id = id;
-      //   this.list = [...(this.list ? this.list : []), dto];
-      // }
+      const dto = {
+        invoice_id: entry.invoice?.item_id || null,
+        car_id: entry.car_id,
+        weight: entry.weight,
+        weight_arrival: entry.weight_arrival,
+        date_arrival: entry.date_arrival,
+        date_departure: entry.date_departure,
+        driver_id: entry.driver_id,
+        client_weight: 0,
+        weight_color: 0,
+        weight_arrival_color: 0,
+        client_weight_arrival: 0,
+        run_status: null,
+        comment: null,
+        car_plate_number: entry.car_plate_number,
+      } as ICreateRunDto;
+      const created = await RunApiService.createRun(dto);
+      if (created) {
+        this.list = [...(this.list ? this.list : []), { ...entry, item_id: created.item_id }];
+      }
 
-      return id !== undefined;
+      return created !== undefined;
     } finally {
       this.isPendingActions = false;
     }

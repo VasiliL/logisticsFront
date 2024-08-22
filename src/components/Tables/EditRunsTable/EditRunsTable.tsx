@@ -201,29 +201,7 @@ export const EditRunsTable: FC = observer(() => {
     const entry = list.find(r => r.item_id === selectedRowId);
     if (entry === undefined) return;
 
-    void createRun({
-      // invoice_id: entry.invoice_id,
-      invoice_id: entry.invoice.item_id,
-      car_id: entry.car_id,
-      weight: entry.weight,
-      weight_arrival: entry.weight_arrival,
-      date_arrival: entry.date_arrival,
-      date_departure: entry.date_departure,
-      driver_id: entry.driver_id,
-      client_weight: 0,
-      weight_color: 0,
-      weight_arrival_color: 0,
-      client_weight_arrival: 0,
-      run_status: null,
-      comment: null,
-      car_plate_number: entry.car_plate_number,
-      // route: entry.invoice.route,
-      // cargo: entry.invoice.cargo,
-      // acc_date: null,
-      // reg_date: null,
-      // waybill: null,
-      // invoice_document: null,
-    });
+    void createRun(entry);
 
     setSelectedRowId('0');
   };

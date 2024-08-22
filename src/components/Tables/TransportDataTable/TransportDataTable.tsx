@@ -36,6 +36,7 @@ export const TransportDataTable: FC = observer(() => {
     const [visibilityModel, setVisibilityModel] = useState(userSettings.tableVisibilityModel);
     const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>();
     const [cellSelectionModel, setCellSelectionModel] = useState<GridCellSelectionModel>();
+    const [rowsForUpdate, setRowsForUpdate] = useState<object[] | undefined>(undefined);
 
     useEffect(() => {
       void init();
@@ -218,7 +219,7 @@ export const TransportDataTable: FC = observer(() => {
       return cols;
     }, []);
 
-    const rows = useMemo(() => {
+    const makeRows = (list: IRunDto[]) => {
       return list?.map(item => ({
         id: item.item_id,
         run_id: item.item_id,
@@ -228,13 +229,17 @@ export const TransportDataTable: FC = observer(() => {
         date_arrival: item.date_arrival,
         client: item.invoice.client,
         cargo: item.invoice.cargo,
-        doc_type_1: item.documents?.find(doc => doc.doc_type_obj?.item_id == '1')?.name,
-        doc_type_2: item.documents?.find(doc => doc.doc_type_obj?.item_id == '2')?.name,
-        doc_type_4: item.documents?.find(doc => doc.doc_type_obj?.item_id == '4')?.name,
+        doc_type_1: item.documents?.find(doc => doc.doc_type_obj?.item_id == '1' || doc.doc_type == 1)?.name,
+        doc_type_2: item.documents?.find(doc => doc.doc_type_obj?.item_id == '2' || doc.doc_type == 2)?.name,
+        doc_type_4: item.documents?.find(doc => doc.doc_type_obj?.item_id == '4' || doc.doc_type == 4)?.name,
         route: item.invoice.route,
         weight: item.weight ? parseFloat(item.weight?.toString() ?? 0) : null,
         weight_arrival: item.weight_arrival ? parseFloat(item.weight_arrival?.toString() ?? 0) : null,
       }));
+    };
+
+    const rows = useMemo(() => {
+      return makeRows(list);
     }, [list]);
 
     const cellsBackgroundColors = useMemo(() => {
@@ -319,6 +324,7 @@ export const TransportDataTable: FC = observer(() => {
           }
         });
         if (res && res.length > 0) {
+          setRowsForUpdate(makeRows(res));
           await updateRun(res);
         }
       }
@@ -451,6 +457,7 @@ export const TransportDataTable: FC = observer(() => {
           <DataTableGrid
             columns={columns}
             rows={rows}
+            rowsForUpdate={rowsForUpdate}
             editMode={'cell'}
             checkboxSelection={true}
             hideFooterSelectedRowCount={false}

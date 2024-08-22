@@ -6,10 +6,10 @@ class CRunApiService implements IRunApiService {
   private readonly HOST_URL = '/api/v2/runs';
 
   private GetRunListAction = new Action<IDaysRqDto, IRunDto[]>({ isInterrupted: true });
-  private CreateRunAction = new Action<ICreateRunDto, number>();
+  private CreateRunAction = new Action<ICreateRunDto, IRunDto>();
   private CreateByInvoiceRunAction = new Action<ICreateByInvoiceRunDto, number>();
   private UpdateRunAction = new Action<IRunDto, boolean>();
-  private UpdateMultipleRunAction = new Action<IRunDto[], boolean>();
+  private UpdateMultipleRunAction = new Action<IRunDto[], IRunDto[]>();
   private DeleteRunAction = new Action<number, boolean>();
 
   /**
@@ -31,11 +31,11 @@ class CRunApiService implements IRunApiService {
   /**
    * Создать новую запись Run
    */
-  async createRun(dto: ICreateRunDto): Promise<number> {
+  async createRun(dto: ICreateRunDto): Promise<IRunDto> {
     const result = await this.CreateRunAction.callAction(`${this.HOST_URL}/create`, 'POST', dto);
     // console.debug(result);
 
-    return result as number;
+    return result as IRunDto;
   }
 
  /**
@@ -71,11 +71,11 @@ class CRunApiService implements IRunApiService {
   /**
    * Обновить данные Run
    */
-  async updateMultipleRun(dto: IRunDto[]): Promise<boolean> {
+  async updateMultipleRun(dto: IRunDto[]): Promise<IRunDto[]> {
     const result = await this.UpdateMultipleRunAction.callAction(`${this.HOST_URL}/multiple_update`, 'PATCH', dto);
     // console.debug(result);
 
-    return result as boolean;
+    return result as IRunDto[];
   }
 }
 
